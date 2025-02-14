@@ -1,12 +1,14 @@
 package com.example.newsfeed.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -15,6 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 public class Comment {
 
     @Id
@@ -37,6 +40,10 @@ public class Comment {
 
     @Column(nullable = false)
     private String content;
+
+    private int likeCount;
+
+    private int childCount; // 자식 댓글 수
 
     @CreationTimestamp
     private LocalDateTime createdAt;
