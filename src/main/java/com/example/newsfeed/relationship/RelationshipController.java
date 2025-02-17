@@ -1,5 +1,6 @@
 package com.example.newsfeed.relationship;
 
+import com.example.newsfeed.relationship.dto.FriendAcceptResponseDto;
 import com.example.newsfeed.relationship.dto.FriendRequestResponseDto;
 import com.example.newsfeed.relationship.entity.Relationship;
 import com.example.newsfeed.relationship.service.RelationshipService;
@@ -26,11 +27,13 @@ public class RelationshipController {
 
     // 친구 추가 요청 수락
     @PostMapping("/follows/{relationshipId}/accept")
-    public ResponseEntity<Relationship> acceptFriendRequest(
+    public ResponseEntity<FriendAcceptResponseDto> acceptFriendRequest(
+//            @SessionAttribute(name = Const.LOGIN_USER) Long senderId
             @PathVariable Long relationshipId
     ) {
-
-        return null;
+        Long receiverId = 2L; // 임시 사용자 id(나중에 세션으로 적용), 요청을 받은 쪽
+        FriendAcceptResponseDto response = relationshipService.acceptFriendRequest(receiverId, relationshipId);
+        return ResponseEntity.ok(response);
     }
 
     // 친구 추가 요청 거절
