@@ -1,11 +1,7 @@
-package com.example.newsfeed.entity;
+package com.example.newsfeed.comment.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -14,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -36,7 +33,7 @@ public class Comment {
     // null 가능 => null 이면 최상위 댓글 , null 이 아니면 대댓글
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_id")
-    private Comment parentComment;
+    private Comment parentCommentId;
 
     @Column(nullable = false)
     private String content;
@@ -49,7 +46,7 @@ public class Comment {
     private LocalDateTime createdAt;
 
     @LastModifiedBy
-    private String modifiedBy;
+    private LocalDateTime updatedAt;
 
     // null 이면 삭제 안된 상태 => soft delete 처리
     private LocalDateTime deletedAt;
