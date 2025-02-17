@@ -39,4 +39,13 @@ public class Relationship {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public Relationship(Long senderId, Long receiverId) {
+        this.senderId = senderId;
+        this.receiverId = receiverId;
+    }
+
+    public void updateStatus(RelationshipStatus status) {
+        this.status = status;
+    }
 }

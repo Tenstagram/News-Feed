@@ -17,8 +17,10 @@ public class RelationshipController {
     @PostMapping("/follows/{receiverId}/request")
     public ResponseEntity<FriendRequestResponseDto> sendFriendRequest(
             @PathVariable Long receiverId
+//            @SessionAttribute(name = Const.LOGIN_USER) Long senderId
     ) {
-        FriendRequestResponseDto response = relationshipService.sendFriendRequest(receiverId);
+        Long senderId = 1L; // 임시 사용자 id(나중에 세션으로 적용)
+        FriendRequestResponseDto response = relationshipService.sendFriendRequest(senderId, receiverId);
         return ResponseEntity.ok(response);
     }
 

@@ -20,7 +20,7 @@ public class FriendRequestResponseDto {
         this.createdAt = createdAt;
     }
 
-    public FriendRequestResponseDto of(Relationship relationship) {
+    public static FriendRequestResponseDto of(Relationship relationship) {
         return new FriendRequestResponseDto(
                 relationship.getId(),
                 relationship.getReceiverId(),
