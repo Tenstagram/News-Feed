@@ -2,6 +2,7 @@ package com.example.newsfeed.member.controller;
 
 import com.example.newsfeed.member.dto.*;
 import com.example.newsfeed.member.service.MemberService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,27 +35,42 @@ public class MemberController {
         return new ResponseEntity<>(memberResponseDto, HttpStatus.OK);
     }
 
-    //유저 이메일 수정 /{id}
-    @PatchMapping("/{id}")
-    public ResponseEntity<Void> updateEmail(@PathVariable Long id, @RequestBody UpdateEmailRequestDto requestDto) {
-        memberService.updateEmail(id, requestDto.getNewEmail());
+    //유저 이메일 수정 세션:Login_USER: 사용자 ID(Long)
+    @PostMapping("/{email}")
+    public ResponseEntity<Void> updateEmail(
+            @SessionAttribute(name = "token") Long memberId,
+            @Valid @RequestBody UpdateEmailRequestDto dto) {
+
+        memberService.validateMemberExists(memberId);
+        memberService.updateEmail(memberId, dto.getNewEmail());
+
         return ResponseEntity.ok().build();
     }
 
+    //유저 이름 수정 세션:Login_USER: 사용자 ID(Long)
     //유저 이름 수정 /{name}
     @PatchMapping("/{name}")
-    public ResponseEntity<Void> updateName(@PathVariable("name") String name, @RequestBody UpdateNameRequestDto dto) {
-        memberService.updateName(name, dto.getNewName());
+    public ResponseEntity<Void> updateName(
+            @SessionAttribute(name = "token") Long memberId,
+            @Valid @RequestBody UpdateNameRequestDto dto) {
+
+        memberService.validateMemberExists(memberId);
+        memberService.updateName(memberId, dto.getNewName());
+
         return ResponseEntity.ok().build();
     }
 
+    //유저 프로필 수정 세션:Login_USER: 사용자 ID(Long)
     //유저 프로필 이미지 수정 /{image}
-    @PatchMapping("/{image}")
-    public ResponseEntity<Void> updatedImage(@PathVariable("image") String image, @RequestBody UpdateImageRequestDto dto) {
-        memberService.updateImage(image, dto.getProfileUrl());
+    @PatchMapping("/image")
+    public ResponseEntity<Void> updatedImage(
+            @SessionAttribute(name = "token")Long memberId,
+            @Valid @RequestBody UpdateImageRequestDto dto) {
+        memberService.updateImage(memberId, dto.getProfileUrl());
         return ResponseEntity.ok().build();
     }
 
+    //유저 이메일 수정 세션:Login_USER: 사용자 ID(Long)
     //유저 비밀번호 수정 /{password}
     @PatchMapping("/{id}/password")
     public ResponseEntity<Void> updatedPassword(@PathVariable Long id, @RequestBody UpdatePasswordRequestDto requestDto) {
@@ -62,12 +78,11 @@ public class MemberController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    //유저 삭제(탈퇴) /{member_id} 겠죠??API 물어보기
+    //유저 삭제(탈퇴) /{member_id}
     @DeleteMapping("/{email}")
     public ResponseEntity<Void> delete(@PathVariable("email") String email) {
         memberService.delete(email);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
 
 }
