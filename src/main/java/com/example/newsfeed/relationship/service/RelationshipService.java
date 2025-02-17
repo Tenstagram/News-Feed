@@ -54,6 +54,20 @@ public class RelationshipService {
         return FriendAcceptResponseDto.of(relationship);
     }
 
+    public void rejectFriendRequest(Long receiverId, Long relationshipId) {
+        // 친구 요청이 존재하는지 확인
+        Relationship relationship = relationshipRepository.findById(relationshipId)
+                .orElseThrow(IllegalStateException::new);
+
+        //  요청을 받은 사용자인지 검증
+        if (!relationship.getReceiverId().equals(receiverId)) {
+            throw new IllegalArgumentException("해당 친구 요청을 거절할 권한이 없습니다.");
+        }
+
+        // 거절 시 DB에서 완전히 삭제
+        relationshipRepository.deleteById(relationshipId);
+    }
+
     public Relationship getFollowers() {
         return null;
     }

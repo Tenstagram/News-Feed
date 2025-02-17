@@ -41,8 +41,9 @@ public class RelationshipController {
     public ResponseEntity<Void> rejectFriendRequest(
             @PathVariable Long relationshipId
     ) {
-
-        return null;
+        Long receiverId = 2L; // 임시 사용자 id(나중에 세션으로 적용), 요청을 받은 쪽
+        relationshipService.rejectFriendRequest(receiverId, relationshipId);
+        return ResponseEntity.ok().build();
     }
 
     // 팔로우 목록 전체 조회
