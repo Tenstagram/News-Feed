@@ -1,4 +1,4 @@
-package com.example.newsfeed.entity;
+package com.example.newsfeed.member.entity;
 
 public enum MemberState {
     ACTIVE,
