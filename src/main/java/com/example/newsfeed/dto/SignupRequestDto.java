@@ -1,5 +1,9 @@
 package com.example.newsfeed.dto;
 
+
+import lombok.Getter;
+
+@Getter
 public class SignupRequestDto {
 
     private final String name;
