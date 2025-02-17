@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Entity
 @NoArgsConstructor
@@ -30,13 +33,16 @@ public class Post extends BaseEntity{
 
     private int commentCount;
 
+    private State state;
+
     public Post(String title, String mediaUrl, String description){
         this.title=title;
         this.mediaUrl=mediaUrl;
         this.description=description;
     }
-    public void update(String title,String description){
+    public void update(String title, String mediaUrl, String description){
         this.title=title;
+        this.mediaUrl=mediaUrl;
         this.description=description;
     }
     public void plusLikeCount(){

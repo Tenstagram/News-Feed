@@ -7,8 +7,6 @@ public class PostSaveRequestDto {
 
     private String title;
 
-    private String mediaUrl;
-
     private String description;
 
 }

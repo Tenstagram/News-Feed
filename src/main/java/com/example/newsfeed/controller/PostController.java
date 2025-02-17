@@ -6,12 +6,21 @@ import com.example.newsfeed.dto.response.PostResponseDto;
 import com.example.newsfeed.dto.response.PostSaveResponseDto;
 import com.example.newsfeed.dto.request.PostUpdateRequestDto;
 import com.example.newsfeed.dto.response.PostUpdateResponseDto;
+import com.example.newsfeed.service.MediaUrlService;
 import com.example.newsfeed.service.PostService;
+import com.example.newsfeed.util.Const;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -21,9 +30,17 @@ public class PostController {
 
     private final PostService postService;
 
-    @PostMapping
-    public ResponseEntity<PostSaveResponseDto> save(@RequestBody PostSaveRequestDto pdto){
-        return ResponseEntity.ok(postService.save(pdto));
+    private final MediaUrlService mediaUrlService;
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PostSaveResponseDto> save(HttpServletRequest request, @RequestPart(name="postRequest") PostSaveRequestDto dto, @RequestPart(name="image") MultipartFile image) throws IOException {
+
+        HttpSession session = request.getSession();// 테스트용 세션 생성(수정할  예정)
+
+        session.setAttribute("LOGIN_USER", "2"); // 테스트용 서버 메모리에 세션 저장(수정)
+
+        return ResponseEntity.ok(postService.save(dto,image));
+
     }
 
     @GetMapping
@@ -36,15 +53,38 @@ public class PostController {
         return ResponseEntity.ok(postService.findById(id));
     }
 
-    @PatchMapping("/{id}")//로그인세션 id 추가
-    public ResponseEntity<PostUpdateResponseDto> updateById(@PathVariable Long id, @RequestBody PostUpdateRequestDto dto){
-        return ResponseEntity.ok(postService.updateById(id,dto));
+//    @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)  // ✅ 올바른 문법
+//    public ResponseEntity<PostUpdateResponseDto> updateById(@PathVariable Long id, @RequestPart(name="postUpdateRequest") PostUpdateRequestDto dto, @RequestPart(name="image") MultipartFile image) throws IOException {
+//        return ResponseEntity.ok(postService.updateById(id,dto,image));
+//    }
+
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<String> deleteById(@PathVariable Long id){//로그인세션 id 추가
+//        postService.deleteById(id);
+//        return ResponseEntity.ok("게시물이 삭제되었습니다.");
+//    }
+
+    @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PostUpdateResponseDto> update(
+            @SessionAttribute(name = Const.LOGIN_USER) Long userId, @PathVariable Long id,
+            @RequestPart(name="postUpdateRequest") PostUpdateRequestDto dto, @RequestPart(name="image") MultipartFile image) throws IOException {
+
+        if(userId==1) {//본인인지 체크 후 맞으면 실행
+            return ResponseEntity.ok(postService.updateById(id, dto,image));
+        }else {//틀리면 에러
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "수정할 권한이 없습니다.");
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteById(@PathVariable Long id){//로그인세션 id 추가
-        postService.deleteById(id);
-        return ResponseEntity.ok("게시물이 삭제되었습니다.");
+    public void delete( @SessionAttribute(name = Const.LOGIN_USER) Long userId,
+                                   @PathVariable Long id) {
+
+        if(userId==1) {
+            postService.deleteById(id);
+        }else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "삭제할 권한이 없습니다.");
+        }
     }
 
     @GetMapping("/page")
