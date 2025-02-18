@@ -9,6 +9,8 @@ import org.springframework.util.PatternMatchUtils;
 
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 
 @Slf4j
 public class LoginFilter implements Filter {
@@ -31,8 +33,7 @@ public class LoginFilter implements Filter {
 
         log.info("로그인 필터 로직 실행");
 
-        //JWT 토큰 디코딩
-
+        //TODO JWT 토큰 디코딩
 
         if (!isWhiteList(requestURI)) {
 
