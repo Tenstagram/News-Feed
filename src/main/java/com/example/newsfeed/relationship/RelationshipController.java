@@ -1,5 +1,6 @@
 package com.example.newsfeed.relationship;
 
+import com.example.newsfeed.relationship.dto.FollowResponseDto;
 import com.example.newsfeed.relationship.dto.FriendAcceptResponseDto;
 import com.example.newsfeed.relationship.dto.FriendRequestResponseDto;
 import com.example.newsfeed.relationship.entity.Relationship;
@@ -7,6 +8,8 @@ import com.example.newsfeed.relationship.service.RelationshipService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,21 +51,22 @@ public class RelationshipController {
 
     // 팔로우 목록 전체 조회
     @GetMapping("/follows/followers")
-    public ResponseEntity<Relationship> getFollowers() {
+    public ResponseEntity<List<FollowResponseDto>> getFollowers() {
+        Long memberId = 1L; // 임시 사용자 id
 
         return null;
     }
 
     // 팔로잉 목록 전체 조회
     @GetMapping("/follows/following")
-    public ResponseEntity<Relationship> getFollowing() {
+    public ResponseEntity<List<FollowResponseDto>> getFollowing() {
 
         return null;
     }
 
     // 맞팔한 목록 전체 조회
     @GetMapping("/follows/mutual")
-    public ResponseEntity<Relationship> getMutualFollowers() {
+    public ResponseEntity<List<FollowResponseDto>> getMutualFollowers() {
 
         return null;
     }

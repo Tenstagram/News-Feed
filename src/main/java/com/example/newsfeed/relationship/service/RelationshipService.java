@@ -1,5 +1,6 @@
 package com.example.newsfeed.relationship.service;
 
+import com.example.newsfeed.relationship.dto.FollowResponseDto;
 import com.example.newsfeed.relationship.dto.FriendAcceptResponseDto;
 import com.example.newsfeed.relationship.dto.FriendRequestResponseDto;
 import com.example.newsfeed.relationship.entity.Relationship;
@@ -8,6 +9,8 @@ import com.example.newsfeed.relationship.repository.RelationshipRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -68,8 +71,14 @@ public class RelationshipService {
         relationshipRepository.deleteById(relationshipId);
     }
 
-    public Relationship getFollowers() {
+    public List<FollowResponseDto> getFollowers(Long memberId) {
+        // 내가 팔로우 한 사람 목록 조회
+        List<Relationship> relationships = relationshipRepository.findByFromMemberId(memberId);
         return null;
+//        return relationshipRepository.findByFromMemberId(memberId)
+//                .stream()
+//                .map(FollowResponseDto::of)
+//                .toList();
     }
 
     public Relationship getFollowing() {
