@@ -1,5 +1,6 @@
 package com.example.newsfeed.member.command;
 
+import com.example.newsfeed.member.entity.MemberStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -10,5 +11,5 @@ public class SignupMemberCommand {
     private String name;
     private String email;
     private String password;
-
+    private MemberStatus status;
 }

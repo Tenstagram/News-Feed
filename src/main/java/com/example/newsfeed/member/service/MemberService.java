@@ -33,9 +33,7 @@ public class MemberService {
     @Transactional
     public SignupResponseDto signUp(SignupMemberCommand command) {
         String password = encoder.encode(command.getPassword());
-        //새로운 유저 생성 및 저장
-        //커맨드 사용
-        Member member= new Member(command.getName(),command.getEmail(),password);
+        Member member= new Member(command.getName(),command.getEmail(),password,command.getStatus());
         Member savedMember = memberRepository.save(member);
         return SignupResponseDto.toDto(savedMember);
     }

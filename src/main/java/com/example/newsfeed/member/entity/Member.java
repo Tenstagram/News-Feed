@@ -34,10 +34,11 @@ public class Member extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private MemberStatus status;
 
-    public Member(String name, String email, String password) {
+    public Member(String name, String email, String password, MemberStatus status) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.status = status;
     }
 
     public Member() {
