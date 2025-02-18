@@ -1,16 +1,20 @@
 package com.example.newsfeed.comment.service;
 
+
 import com.example.newsfeed.comment.dto.CommentAddRequestDto;
 import com.example.newsfeed.comment.dto.CommentListResponseDto;
 import com.example.newsfeed.comment.dto.CommentResponseDto;
 import com.example.newsfeed.comment.dto.CommentUpdateRequestDto;
 import com.example.newsfeed.comment.entity.Comment;
+import com.example.newsfeed.comment.entity.LikeComment;
 import com.example.newsfeed.comment.entity.Member;
 import com.example.newsfeed.comment.entity.Post;
 import com.example.newsfeed.comment.exception.AuthenticationException;
 import com.example.newsfeed.comment.exception.DeletedCommentException;
 import com.example.newsfeed.comment.exception.NotFoundException;
+import com.example.newsfeed.comment.exception.RepetitionLikexception;
 import com.example.newsfeed.comment.repository.CommentRepository;
+import com.example.newsfeed.comment.repository.LikeCommentRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -27,46 +31,46 @@ import java.util.stream.Collectors;
 public class CommentService {
 
     private final CommentRepository commentRepository;
+    private final LikeCommentRepository likeCommentRepository;
 
-//    private final MemberRepository memberRepository;
-//    private final PostRepository postRepository;
-//    private final RelationshipRepository relationshipRepository;
+    private final MemberRepository memberRepository;
+    private final PostRepository postRepository;
 
 
     // 댓글 작성 메서드
     // Transactional: 예외가 발생할 수 있는 작업에서 만약 예외가 발생하면, 해당 작업을 처음으로 롤백시킴
     // => ArithmeticException or PostNotFoundException 발생 시, DB를 작업 전으로 롤백시킴
-//    @Transactional
-//    public CommentResponseDto addComment(Long memberId, Long postId, CommentAddRequestDto dto) {
-//
-//        // 사용자 조회 로직 => 사용자가 유효한지
-//        Member member = memberRepository.findById(memberId)
-//                .orElseThrow(AuthenticationException::new);
-//
-//        // .orElseThrow(() -> new ArithmeticException("메세지"));
-//        // 이 방식은 내가 그때 그때 메세지 넣을 때 쓰는 방식
-//        // .orElseThrow(AuthenticationException::new);
-//        // 이 방식은 전역 핸들러에서 메세지를 한번에 관리하는 방식
-//
-//        // 게시글 조회 로직 => 게시글이 유효한지
-//        Post post = postRepository.findById(postId)
-//                .orElseThrow(() -> new NotFoundException("게시글을 찾을 수 없습니다."));
-//
-//        // 댓글 객체 생성
-//        // Setter 대신 builder 사용 => DB에 저장될 'comment 객체'를 빌드함
-//        Comment comment = Comment.builder()
-//                .member(member)
-//                .post(post)
-//                .content(dto.getContent())
-//                .build();
-//
-//        // DB에 댓글 객체 저장
-//        commentRepository.save(comment);
-//
-//        // 응답 DTO 로 반환
-//        // 여기선 반환하는 '응답 DTO' 를 빌드함 => 그래서 결과적으로 한 과정에서 빌드를 2번하는 셈
-//        return toCommentResponseDto(comment);
-//    }
+    @Transactional
+    public CommentResponseDto addComment(Long memberId, Long postId, CommentAddRequestDto dto) {
+
+        // 사용자 조회 로직 => 사용자가 유효한지
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(AuthenticationException::new);
+
+        // .orElseThrow(() -> new ArithmeticException("메세지"));
+        // 이 방식은 내가 그때 그때 메세지 넣을 때 쓰는 방식
+        // .orElseThrow(AuthenticationException::new);
+        // 이 방식은 전역 핸들러에서 메세지를 한번에 관리하는 방식
+
+        // 게시글 조회 로직 => 게시글이 유효한지
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException("게시글을 찾을 수 없습니다."));
+
+        // 댓글 객체 생성
+        // Setter 대신 builder 사용 => DB에 저장될 'comment 객체'를 빌드함
+        Comment comment = Comment.builder()
+                .member(member)
+                .post(post)
+                .content(dto.getContent())
+                .build();
+
+        // DB에 댓글 객체 저장
+        commentRepository.save(comment);
+
+        // 응답 DTO 로 반환
+        // 여기선 반환하는 '응답 DTO' 를 빌드함 => 그래서 결과적으로 한 과정에서 빌드를 2번하는 셈
+        return toCommentResponseDto(comment);
+    }
 
     // 특정 게시글의 댓글 조회
     // 나중에 차단 기능 추가 여부에 따라 여기서 특정 멤버 ID 받아서 필터링 해도 될듯
@@ -140,6 +144,32 @@ public class CommentService {
                 .build();
     }
 
+
+    public void likeComment(Long commentId, Long memberId) {
+
+        // 검증
+        Comment comment = verifyingUsersAndComment(commentId, memberId);
+
+        // 사용자 조회 로직 => 사용자가 유효한지
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(AuthenticationException::new);
+
+        // 중복 좋아요 체크
+        if (likeCommentRepository.existsByComment_CommentIdAndMember_MemberId(commentId, memberId)) {
+            throw new RepetitionLikexception("");
+        }
+
+        // 좋아요댓글 객체 생성
+        LikeComment likeComment = LikeComment.builder()
+                .comment(comment)
+                .member(member)
+                .build();
+
+        // 기존의 카운트를 수정(증가) 시키는 방식이기에 setter 사용
+        comment.setLikeCount(comment.getLikeCount() + 1);
+        commentRepository.save(comment);
+    }
+
     // 댓글 리스트 엔티티를 DTO 로 변환
     private List<CommentResponseDto> toCommentResponseListDto(List<Comment> comments) {
 
@@ -170,5 +200,4 @@ public class CommentService {
 
         return comment;
     }
-
 }
