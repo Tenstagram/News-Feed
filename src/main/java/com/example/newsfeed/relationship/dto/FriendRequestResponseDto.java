@@ -23,8 +23,8 @@ public class FriendRequestResponseDto {
     public static FriendRequestResponseDto of(Relationship relationship) {
         return new FriendRequestResponseDto(
                 relationship.getId(),
-                relationship.getReceiverId(),
-                relationship.getSenderId(),
+                relationship.getReceiver().getId(),
+                relationship.getSender().getId(),
                 relationship.getCreatedAt()
         );
     }

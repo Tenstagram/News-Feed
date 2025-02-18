@@ -1,11 +1,15 @@
-package com.example.newsfeed.relationship;
+package com.example.newsfeed.relationship.controller;
 
+import com.example.newsfeed.relationship.dto.FollowResponseDto;
+import com.example.newsfeed.relationship.dto.FriendAcceptResponseDto;
 import com.example.newsfeed.relationship.dto.FriendRequestResponseDto;
 import com.example.newsfeed.relationship.entity.Relationship;
 import com.example.newsfeed.relationship.service.RelationshipService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,49 +20,52 @@ public class RelationshipController {
     // 친구 추가 요청
     @PostMapping("/follows/{receiverId}/request")
     public ResponseEntity<FriendRequestResponseDto> sendFriendRequest(
+            @SessionAttribute(name = "token") Long senderId,
             @PathVariable Long receiverId
-//            @SessionAttribute(name = Const.LOGIN_USER) Long senderId
     ) {
-        Long senderId = 1L; // 임시 사용자 id(나중에 세션으로 적용)
         FriendRequestResponseDto response = relationshipService.sendFriendRequest(senderId, receiverId);
         return ResponseEntity.ok(response);
     }
 
     // 친구 추가 요청 수락
     @PostMapping("/follows/{relationshipId}/accept")
-    public ResponseEntity<Relationship> acceptFriendRequest(
+    public ResponseEntity<FriendAcceptResponseDto> acceptFriendRequest(
+            @SessionAttribute(name = "token") Long receiverId,
             @PathVariable Long relationshipId
     ) {
-
-        return null;
+        FriendAcceptResponseDto response = relationshipService.acceptFriendRequest(receiverId, relationshipId);
+        return ResponseEntity.ok(response);
     }
 
     // 친구 추가 요청 거절
-    @PostMapping("/follows/{relationshipId}/reject")
+    @DeleteMapping("/follows/{relationshipId}/reject")
     public ResponseEntity<Void> rejectFriendRequest(
+            @SessionAttribute(name = "token") Long receiverId,
             @PathVariable Long relationshipId
     ) {
-
-        return null;
+        relationshipService.rejectFriendRequest(receiverId, relationshipId);
+        return ResponseEntity.ok().build();
     }
 
     // 팔로우 목록 전체 조회
     @GetMapping("/follows/followers")
-    public ResponseEntity<Relationship> getFollowers() {
+    public ResponseEntity<List<FollowResponseDto>> getFollowers(
+            @SessionAttribute(name = "token") Long memberId
+    ) {
 
         return null;
     }
 
     // 팔로잉 목록 전체 조회
     @GetMapping("/follows/following")
-    public ResponseEntity<Relationship> getFollowing() {
+    public ResponseEntity<List<FollowResponseDto>> getFollowing() {
 
         return null;
     }
 
     // 맞팔한 목록 전체 조회
     @GetMapping("/follows/mutual")
-    public ResponseEntity<Relationship> getMutualFollowers() {
+    public ResponseEntity<List<FollowResponseDto>> getMutualFollowers() {
 
         return null;
     }
