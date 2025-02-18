@@ -1,5 +1,7 @@
 package com.example.newsfeed.comment.entity;
 
+import com.example.newsfeed.member.entity.Member;
+import com.example.newsfeed.post.entity.Post;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
