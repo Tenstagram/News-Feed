@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 // 전역 인증 관리 핸들
 // 예외 발생 흐름: 각 코드에서 예외 발생 -> 각 예외 클래스로 넘어감 -> GlobalExceptionHandler 으로 넘어와서 최종적으로 예외 던짐
 @ControllerAdvice
-public class GlobalExceptionHandler {
+public class CommentExceptionHandler {
 
     // 404 NOT_FOUND 통합 예외
     @ExceptionHandler(NotFoundException.class)
