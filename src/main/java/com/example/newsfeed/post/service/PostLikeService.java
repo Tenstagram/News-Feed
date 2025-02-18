@@ -23,11 +23,16 @@ public class PostLikeService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
 
-        if (postLikeRepository.existsByMemberId(memberId))
-            throw new IllegalArgumentException("좋아요는 한 번만 누를 수 있습니다.");
-
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
+
+//        if(postLikeRepository.existsByPost(post)){
+//            if(postLikeRepository.countByMember(member)>=1){
+//            throw new IllegalArgumentException("좋아요는 한 번만 누를 수 있습니다.");
+//        }}
+        if(postLikeRepository.countByPostAndMember(post,member)>=1){
+              throw new IllegalArgumentException("좋아요는 한 번만 누를 수 있습니다.");
+        }
 
         PostLike postLike = new PostLike(member, post);
 
@@ -42,15 +47,17 @@ public class PostLikeService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
 
-        if (!memberRepository.existsById(memberId)) {
-            throw new IllegalArgumentException("해당 유저는 존재하지 않습니다.");
-        }
+//        if (!memberRepository.existsById(memberId)) {
+//            throw new IllegalArgumentException("해당 유저는 존재하지 않습니다.");
+//        }
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
 
-        if (!postLikeRepository.existsByMemberId(memberId)){
-            throw new IllegalArgumentException("좋아요 먼저 누르세요");
-        }
-
-        postLikeRepository.deleteByMemberId(memberId);
+        if(postLikeRepository.countByPostAndMember(post,member)==0){
+                throw new IllegalArgumentException("좋아요 먼저 누르세요");
+            }else{
+                postLikeRepository.deleteByMemberAndPost(member,post);
+            }
 
         post.cancelLikeCount();
 

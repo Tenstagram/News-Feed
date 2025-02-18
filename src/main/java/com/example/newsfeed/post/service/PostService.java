@@ -3,6 +3,7 @@ package com.example.newsfeed.post.service;
 import com.example.newsfeed.comment.repository.CommentRepository;
 import com.example.newsfeed.member.entity.Member;
 import com.example.newsfeed.member.repository.MemberRepository;
+import com.example.newsfeed.post.dto.request.PostPageRequestDto;
 import com.example.newsfeed.post.dto.request.PostStateChangeRequestDto;
 import com.example.newsfeed.post.dto.response.PostPageResponseDto;
 import com.example.newsfeed.post.dto.request.PostSaveRequestDto;
@@ -155,9 +156,21 @@ public class PostService {
     }
 
     @Transactional
-    public Page<PostPageResponseDto> findAllPage(int page, int size) {
+    public Page<PostPageResponseDto> findAllPage(int page, int size, int pageSort, PostPageRequestDto dto) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Post> pageS = postRepository.findAllByOrderByCreatedAtDesc(pageable);
+        Page<Post> pageS=null;
+        if (pageSort == 1) {//생성일자 기준 내림차순
+            pageS = postRepository.findAllByOrderByCreatedAtDesc(pageable);
+        }
+        if (pageSort == 2) {//수정일자 기준 최신순
+            pageS = postRepository.findAllByOrderByUpdatedAtDesc(pageable);
+        }
+        if (pageSort == 3) {//좋아요순으로 페이지 정렬
+            pageS = postRepository.findAllByOrderByLikeCountDesc(pageable);
+        }
+        if (pageSort == 4) {//기간별 페이지 정렬
+            pageS = postRepository.findByCreatedAtBetween(dto.getStartDate(), dto.getEndDate(), pageable);
+        }
 
         return pageS.map(post ->
                 new PostPageResponseDto(post.getPostId(),
@@ -165,8 +178,9 @@ public class PostService {
                         post.getMediaUrl(),
                         post.getDescription(),
                         post.getLikeCount(),
-                        commentRepository.countByPost(post)));
-        //                        commentRepository.countByPostId(post.getPostId()),
+                        commentRepository.countByPost(post),
+                        post.getCreatedAt(),
+                        post.getUpdatedAt()));
     }
 
     @Transactional
@@ -195,9 +209,43 @@ public class PostService {
         return fileName.toString();
     }
 //
-//    @Transactional
-//    public long  countComment(Long postId){
-//        return commentRepository.countByPostId(postId);
+//    public Page<PostPageResponseDto>  findByUpdatedAtPage(int page, int size) {
+//        Pageable pageable = PageRequest.of(page - 1, size);
+//        Page<Post> pageS = postRepository.findAllByOrderByUpdatedAtDesc(pageable);
+//
+//        return pageS.map(post ->
+//                new PostPageResponseDto(post.getPostId(),
+//                        post.getTitle(),
+//                        post.getMediaUrl(),
+//                        post.getDescription(),
+//                        post.getLikeCount(),
+//                        commentRepository.countByPost(post)));
+//    }
+//
+//    public Page<PostPageResponseDto> findByLikeCountPage(int page, int size) {
+//        Pageable pageable = PageRequest.of(page - 1, size);
+//        Page<Post> pageS = postRepository.findAllByOrderByLikeCountDesc(pageable);
+//
+//        return pageS.map(post ->
+//                new PostPageResponseDto(post.getPostId(),
+//                        post.getTitle(),
+//                        post.getMediaUrl(),
+//                        post.getDescription(),
+//                        post.getLikeCount(),
+//                        commentRepository.countByPost(post)));
+//    }
+//
+//    public Page<PostPageResponseDto> findByPeriodPage(int page, int size, LocalDateTime startDate, LocalDateTime endDate) {
+//        Pageable pageable = PageRequest.of(page - 1, size);
+//        Page<Post> pageS = postRepository.findByCreatedAtBetween( startDate,  endDate, pageable);
+//
+//        return pageS.map(post ->
+//                new PostPageResponseDto(post.getPostId(),
+//                        post.getTitle(),
+//                        post.getMediaUrl(),
+//                        post.getDescription(),
+//                        post.getLikeCount(),
+//                        commentRepository.countByPost(post)));
 //    }
 
 }
