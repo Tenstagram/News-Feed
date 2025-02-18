@@ -149,7 +149,7 @@ public class CommentService {
     public void likeComment(Long commentId, Long memberId) {
 
         // 검증
-        Comment comment = verifyingUsersAndComment(commentId, memberId);
+        Comment comment = verifyCommentForLike(commentId);
 
         // 사용자 조회 로직 => 사용자가 유효한지
         Member member = memberRepository.findById(memberId)
@@ -166,6 +166,9 @@ public class CommentService {
                 .member(member)
                 .build();
 
+        // 좋아요 객체 저장
+        likeCommentRepository.save(likeComment);
+
         // 기존의 카운트를 수정(증가) 시키는 방식이기에 setter 사용
         comment.setLikeCount(comment.getLikeCount() + 1);
         commentRepository.save(comment);
@@ -175,7 +178,7 @@ public class CommentService {
     public void unlikeComment(Long commentId, Long memberId) {
 
         // 검증
-        Comment comment = verifyingUsersAndComment(commentId, memberId);
+        Comment comment = verifyCommentForLike(commentId);
 
         // 사용자 조회 로직 => 사용자가 유효한지
         Member member = memberRepository.findById(memberId)
@@ -216,6 +219,21 @@ public class CommentService {
             // 아무 메세지나 입력해도 전역 핸들러에서 메세지 관리됨
             throw new AuthenticationException("");
         }
+
+        // 삭제된 댓글인지 검사
+        if (comment.getDeletedAt() != null) {
+            throw new DeletedCommentException("");
+        }
+
+        return comment;
+    }
+
+    // 멤버 id 받으면 검증과정에서 댓글 작성자만 좋아요 가능 => 멤버 id 안받게 변경
+    private Comment verifyCommentForLike(Long commentId) {
+
+        // 수정할 댓글 조회
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException("댓글을 찾을 수 없습니다."));
 
         // 삭제된 댓글인지 검사
         if (comment.getDeletedAt() != null) {
