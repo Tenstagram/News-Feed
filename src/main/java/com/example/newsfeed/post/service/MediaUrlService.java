@@ -46,24 +46,6 @@ public class MediaUrlService {
         return  saveMediaUrl.getMediaUrl();
     }
 
-    @Transactional
-    public MediaUrl updateMediaByPostId(Post post, MultipartFile  mediaUrl) throws IOException {
-        MediaUrl media=mediaUrlRepository.findByPost(post);
-
-        String originalFilename = mediaUrl.getOriginalFilename();//원래 파일명
-        String storedFilename = UUID.randomUUID() + "_" + originalFilename;//db 저장용 파일명
-
-        // 파일 저장 경로 지정
-        Path filePath = Paths.get(fullPathName + storedFilename);
-        Files.createDirectories(filePath.getParent());
-        Files.write(filePath, mediaUrl.getBytes());
-
-        media.updateMedia(originalFilename,storedFilename,filePath.toString(),post);
-
-        return media;
-
-    }
-
     public void deleteByPost(Post post){
 //        UploadFile uploadFile = fileRepository.findById(fileId)
 //                .orElseThrow(() -> new IllegalArgumentException("파일을 찾을 수 없습니다."));
