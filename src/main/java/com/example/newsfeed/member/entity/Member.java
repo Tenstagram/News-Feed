@@ -2,7 +2,7 @@ package com.example.newsfeed.member.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import org.hibernate.annotations.ColumnDefault;
+
 import java.util.UUID;
 
 

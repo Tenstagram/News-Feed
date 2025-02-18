@@ -20,12 +20,12 @@ public class FriendAcceptResponseDto {
         this.updatedAt = updatedAt;
     }
 
-    public FriendAcceptResponseDto of(Relationship relationship) {
+    public static FriendAcceptResponseDto of(Relationship relationship) {
         return new FriendAcceptResponseDto(
                 relationship.getId(),
-                relationship.getReceiverId(),
-                relationship.getSenderId(),
-                relationship.getUpdatedAt()
+                relationship.getReceiver().getId(),
+                relationship.getSender().getId(),
+                relationship.getModifiedAt()
         );
     }
 }
