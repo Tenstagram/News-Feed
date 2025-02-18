@@ -12,7 +12,7 @@ import com.example.newsfeed.comment.entity.Post;
 import com.example.newsfeed.comment.exception.AuthenticationException;
 import com.example.newsfeed.comment.exception.DeletedCommentException;
 import com.example.newsfeed.comment.exception.NotFoundException;
-import com.example.newsfeed.comment.exception.RepetitionLikexception;
+import com.example.newsfeed.comment.exception.RepetitionLikeException;
 import com.example.newsfeed.comment.repository.CommentRepository;
 import com.example.newsfeed.comment.repository.LikeCommentRepository;
 import jakarta.transaction.Transactional;
@@ -156,7 +156,7 @@ public class CommentService {
 
         // 중복 좋아요 체크
         if (likeCommentRepository.existsByComment_CommentIdAndMember_MemberId(commentId, memberId)) {
-            throw new RepetitionLikexception("");
+            throw new RepetitionLikeException("이미 좋아요를 눌렀습니다.");
         }
 
         // 좋아요댓글 객체 생성
@@ -167,6 +167,28 @@ public class CommentService {
 
         // 기존의 카운트를 수정(증가) 시키는 방식이기에 setter 사용
         comment.setLikeCount(comment.getLikeCount() + 1);
+        commentRepository.save(comment);
+    }
+
+    public void unlikeComment(Long commentId, Long memberId) {
+
+        // 검증
+        Comment comment = verifyingUsersAndComment(commentId, memberId);
+
+        // 사용자 조회 로직 => 사용자가 유효한지
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(AuthenticationException::new);
+
+        // 좋아요 여부 검증
+        LikeComment likeComment = likeCommentRepository.findByComment_CommentIdAndMember_MemberId(commentId, memberId)
+                .orElseThrow(() -> new RepetitionLikeException("좋아요 기록이 없습니다."));
+
+        // 좋아요 기록 삭제
+        likeCommentRepository.delete(likeComment);
+
+        // 댓글 좋아요 수 감소
+        int count = comment.getLikeCount();
+        comment.setLikeCount(count > 0 ? count - 1 : 0);
         commentRepository.save(comment);
     }
 
@@ -200,4 +222,5 @@ public class CommentService {
 
         return comment;
     }
+
 }

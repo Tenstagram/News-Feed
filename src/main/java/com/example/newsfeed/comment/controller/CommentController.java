@@ -94,6 +94,14 @@ public class CommentController {
         return new ResponseEntity<>("좋아요를 눌렀습니다.", HttpStatus.OK);
     }
 
+    // 댓글 좋아요 취소
+    @PostMapping("/{commentId}/like")
+    public ResponseEntity<String> unlikeComment(@PathVariable Long commentId,
+                                                @SessionAttribute(name = "memberId") Long memberId){
+        commentService.unlikeComment(commentId, memberId);
+        return new ResponseEntity<>("좋아요가 취소되었습니다.", HttpStatus.OK);
+    }
+
 
 
 }
