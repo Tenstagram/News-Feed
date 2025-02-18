@@ -1,5 +1,7 @@
 package com.example.newsfeed.relationship.dto;
 
+import com.example.newsfeed.member.entity.Member;
+import com.example.newsfeed.relationship.entity.Relationship;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -23,14 +25,14 @@ public class FollowResponseDto {
         this.updatedAt = updatedAt;
     }
 
-//    public static FollowResponseDto of(Relationship relationship, Member member) {
-//        return new FollowResponseDto(
-//                relationship.getId(),
-//                member.getImage(),
-//                member.getName(),
-//                relationship.getStatus(),
-//                relationship.getCreatedAt(),
-//                relationship.getUpdatedAt()
-//        );
-//    }
+    public static FollowResponseDto of(Relationship relationship, Member member) {
+        return new FollowResponseDto(
+                relationship.getId(),
+                member.getProfileUrl(),
+                member.getName(),
+                relationship.getStatus().name(),
+                relationship.getCreatedAt(),
+                relationship.getModifiedAt()
+        );
+    }
 }

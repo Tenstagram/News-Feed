@@ -52,20 +52,24 @@ public class RelationshipController {
     public ResponseEntity<List<FollowResponseDto>> getFollowers(
             @SessionAttribute(name = "token") Long memberId
     ) {
-
-        return null;
+        List<FollowResponseDto> followers = relationshipService.getFollowers(memberId);
+        return ResponseEntity.ok(followers);
     }
 
     // 팔로잉 목록 전체 조회
     @GetMapping("/follows/following")
-    public ResponseEntity<List<FollowResponseDto>> getFollowing() {
+    public ResponseEntity<List<FollowResponseDto>> getFollowing(
+            @SessionAttribute(name = "token") Long memberId
+    ) {
 
         return null;
     }
 
     // 맞팔한 목록 전체 조회
     @GetMapping("/follows/mutual")
-    public ResponseEntity<List<FollowResponseDto>> getMutualFollowers() {
+    public ResponseEntity<List<FollowResponseDto>> getMutualFollowers(
+            @SessionAttribute(name = "token") Long memberId
+    ) {
 
         return null;
     }

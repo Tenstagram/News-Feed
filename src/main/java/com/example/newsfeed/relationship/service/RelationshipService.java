@@ -84,12 +84,14 @@ public class RelationshipService {
 
     public List<FollowResponseDto> getFollowers(Long memberId) {
         // 내가 팔로우 한 사람 목록 조회
-//        List<Relationship> relationships = relationshipRepository.findByFromMemberId(memberId);
-        return null;
-//        return relationshipRepository.findByFromMemberId(memberId)
-//                .stream()
-//                .map(FollowResponseDto::of)
-//                .toList();
+        return relationshipRepository.findBySenderIdAndStatusNot(memberId, RelationshipStatus.BLOCKED)
+                .stream()
+                .map(relationship -> {
+                    Member toMember = memberRepository.findById(relationship.getReceiver().getId())
+                            .orElseThrow(IllegalStateException::new);
+                    return FollowResponseDto.of(relationship, toMember);
+                })
+                .toList();
     }
 
     public Relationship getFollowing() {
