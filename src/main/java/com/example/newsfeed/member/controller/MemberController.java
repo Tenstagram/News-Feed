@@ -36,7 +36,7 @@ public class MemberController {
     }
 
     //유저 이메일 수정 세션:Login_USER: 사용자 ID(Long)
-    @PostMapping("/{email}")
+    @PostMapping("/email")
     public ResponseEntity<Void> updateEmail(
             @SessionAttribute(name = "token") Long memberId,
             @Valid @RequestBody UpdateEmailRequestDto dto) {
@@ -62,7 +62,7 @@ public class MemberController {
 
     //유저 프로필 수정 세션:Login_USER: 사용자 ID(Long)
     //유저 프로필 이미지 수정 /image
-    @PostMapping("/profileurl")
+    @PostMapping("/image")
     public ResponseEntity<Void> updatedImage(
             @SessionAttribute(name = "token") Long memberId,
             @Valid @RequestBody UpdateImageRequestDto dto) {
@@ -85,8 +85,8 @@ public class MemberController {
 
     }
 
-
-    //유저 삭제(탈퇴) /{member_id}
+    //유저 삭제(탈퇴)
+    //TODO 비밀번호 검증
     @DeleteMapping("/delete")
     public ResponseEntity<Void> delete(
         @SessionAttribute(name = "token")Long memberId

@@ -33,6 +33,7 @@ public class LoginFilter implements Filter {
 
         //JWT 토큰 디코딩
 
+
         if (!isWhiteList(requestURI)) {
 
             HttpSession session = httpRequest.getSession(false);

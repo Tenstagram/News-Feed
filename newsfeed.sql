@@ -1,11 +1,13 @@
 USE newsfeed;
 
-CREATE TABLE members(
-                        id BIGINT AUTO_INCREMENT PRIMARY KEY ,
-                        name VARCHAR(255) NOT NULL ,
-                        email VARCHAR(255) NOT NULL ,
-                        image VARCHAR(255) NOT NULL ,
-                        password VARCHAR(255) NOT NULL ,
-                        created_at TIMESTAMP NOT NULL ,
-                        modified_at TIMESTAMP NOT NULL
+CREATE TABLE IF NOT EXISTS members(
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    profile_url VARCHAR(255),
+    status VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    follower INT DEFAULT 0
 );

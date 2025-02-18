@@ -3,10 +3,6 @@ package com.example.newsfeed.member.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.ColumnDefault;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 
@@ -31,7 +27,7 @@ public class Member extends BaseEntity{
     @Column()
     private String profileUrl;
 
-    @Column(nullable = false)
+    @Column()
     private int follower;
 
     //회원 탈퇴, 회원가입 시

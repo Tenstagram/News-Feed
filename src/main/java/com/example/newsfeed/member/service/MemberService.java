@@ -55,7 +55,7 @@ public class MemberService {
     //유저 단건 조회
     public MemberResponseDto findById(Long id) {
         Member member = memberRepository.findById(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"조회된 정보가 없습니다."));
-        //삭제된 회원 조회시 "탈퇴한 회원입니다" 예외처리 필요 ->이메일
+        //TODO 삭제된 회원 조회시 "탈퇴한 회원입니다" 예외처리 필요 ->이메일
         if (member.getStatus().equals(MemberStatus.DELETED)) {
             throw new ResponseStatusException(HttpStatus.NO_CONTENT,"탈퇴한 회원입니다.");
         }
@@ -109,7 +109,6 @@ public class MemberService {
     public void delete(Long memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"삭제할 데이터가 없습니다."));
         member.delete();
-        //추가로 비밀번호 검증을 해서 좀더 견고할 필요가 있을까요??
         memberRepository.save(member);
     }
 
