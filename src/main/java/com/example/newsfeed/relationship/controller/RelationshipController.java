@@ -75,12 +75,13 @@ public class RelationshipController {
     }
 
     // 팔로우 취소
-    @DeleteMapping("/follows/{relationshipId}")
+    @DeleteMapping("/follows/{targetId}")
     public ResponseEntity<Void> unfollow(
-            @PathVariable Long relationshipId
+            @SessionAttribute(name = "token") Long memberId,
+            @PathVariable Long targetId
     ) {
-
-        return null;
+        relationshipService.unfollow(4L, 2L);
+        return ResponseEntity.ok().build();
     }
 
     // 특정 유저 차단

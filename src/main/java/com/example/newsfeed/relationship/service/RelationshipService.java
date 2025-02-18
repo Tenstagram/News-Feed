@@ -124,6 +124,29 @@ public class RelationshipService {
         return mutualFollowers;
     }
 
+    @Transactional
+    public void unfollow(Long memberId, Long targetId) {
+        // 내가 보내서 성립된 관계 & 상대방이 보내서 성립된 관계 조회
+        Relationship relationship = relationshipRepository.findBySenderIdAndReceiverId(memberId, targetId)
+                .orElse(relationshipRepository.findBySenderIdAndReceiverId(targetId, memberId)
+                        .orElseThrow(() -> new IllegalArgumentException("팔로우 관계가 존재하지 않습니다.")));
+
+        // 맞팔 상태인 경우
+        if (relationship.getStatus() == RelationshipStatus.ACCEPTED) {
+            if (relationship.getSender().getId().equals(memberId)) {
+                // 내가 보낸 요청이 ACCEPTED 상태인 경우 -> 언팔하면 관계 삭제
+                relationshipRepository.delete(relationship);
+            } else {
+                // 상대가 보낸 요청이 ACCEPTED 상태인 경우 -> 언팔하면 REQUESTED로 변경
+                relationship.updateStatus(RelationshipStatus.REQUESTED);
+            }
+            return;
+        }
+
+        // 이미 REQUESTED 상태라면 관계 삭제(나만 팔로우 하고 있는 경우)
+        relationshipRepository.delete(relationship);
+    }
+
     public Relationship getBlockedMembers() {
         return null;
     }
