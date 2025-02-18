@@ -1,4 +1,4 @@
-package com.example.newsfeed.post.util.Filter;
+package com.example.newsfeed.util.Filter;
 
 
 import jakarta.servlet.FilterChain;
@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.PatternMatchUtils;
 import jakarta.servlet.*;
-import jakarta.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 
 @Slf4j

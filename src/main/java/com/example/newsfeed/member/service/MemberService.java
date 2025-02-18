@@ -3,12 +3,11 @@ package com.example.newsfeed.member.service;
 import com.example.newsfeed.member.command.SignupMemberCommand;
 import com.example.newsfeed.member.dto.LoginResponseDto;
 import com.example.newsfeed.member.dto.MemberResponseDto;
-import com.example.newsfeed.member.dto.SignupRequestDto;
 import com.example.newsfeed.member.dto.SignupResponseDto;
 import com.example.newsfeed.member.entity.Member;
 import com.example.newsfeed.member.entity.MemberStatus;
 import com.example.newsfeed.member.repository.MemberRepository;
-import com.example.newsfeed.member.util.config.PasswordEncoder;
+import com.example.newsfeed.util.config.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,9 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.management.Query;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
