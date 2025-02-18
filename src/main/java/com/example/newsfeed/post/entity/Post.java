@@ -26,9 +26,9 @@ public class Post extends BaseEntity{
     @JoinColumn(name="member_id")
     private Member member;
 
-    private int likeCount=0;
+    private long likeCount=0;
 
-    private int commentCount;
+    private long commentCount=0;
 
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)

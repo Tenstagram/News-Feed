@@ -1,5 +1,6 @@
 package com.example.newsfeed.post.service;
 
+import com.example.newsfeed.comment.repository.CommentRepository;
 import com.example.newsfeed.member.entity.Member;
 import com.example.newsfeed.member.repository.MemberRepository;
 import com.example.newsfeed.post.dto.request.PostStateChangeRequestDto;
@@ -38,6 +39,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final CommentRepository commentRepository;
     private final MediaUrlService mediaUrlService;
     private final State STATE_DELETE = State.DELETE;
 
@@ -47,7 +49,7 @@ public class PostService {
         String fileNameList = getFileName(mediaUrl);
         //       String fileNameList=fileName.toString();
 
-        Member member= memberRepository.findById(userId)
+        Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
 
         Post post = new Post(member, dto.getTitle(), fileNameList, dto.getDescription(), dto.getState());
@@ -75,6 +77,7 @@ public class PostService {
 
     @Transactional
     public List<PostResponseDto> findAll() {
+
         return postRepository.findAll().stream()
                 .map(post -> new PostResponseDto(
                         post.getPostId(),
@@ -84,7 +87,7 @@ public class PostService {
                         post.getDescription(),
                         post.getState(),
                         post.getLikeCount(),
-                        post.getCommentCount()))
+                        commentRepository.countByPost(post)))
                 .collect(Collectors.toList());
     }
 
@@ -104,7 +107,7 @@ public class PostService {
                 post.getDescription(),
                 post.getState(),
                 post.getLikeCount(),
-                post.getCommentCount());
+                commentRepository.countByPost(post));
     }
 
     @Transactional
@@ -162,7 +165,7 @@ public class PostService {
                         post.getMediaUrl(),
                         post.getDescription(),
                         post.getLikeCount(),
-                        post.getCommentCount()));
+                        commentRepository.countByPost(post)));
         //                        commentRepository.countByPostId(post.getPostId()),
     }
 
@@ -178,8 +181,8 @@ public class PostService {
         }
 
         return post.getState().getValue();
-
     }
+
     @Transactional
     public String getFileName(List<MultipartFile> mediaUrl) {//받은 이미지 이름들을 모아 String으로 변경
         StringBuffer fileName = new StringBuffer();
@@ -191,5 +194,10 @@ public class PostService {
 
         return fileName.toString();
     }
+//
+//    @Transactional
+//    public long  countComment(Long postId){
+//        return commentRepository.countByPostId(postId);
+//    }
 
 }

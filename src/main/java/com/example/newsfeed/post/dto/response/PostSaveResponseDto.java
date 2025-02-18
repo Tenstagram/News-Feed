@@ -21,13 +21,13 @@ public class PostSaveResponseDto {
 
     private final State state;
 
-    private final int likeCount;
+    private final Long likeCount;
 
-    private final int commentCount;
+    private final Long commentCount;
 
     private final LocalDateTime createdAt;
 
-    public PostSaveResponseDto(Long postId, String username, String title, String mediaUrl, String description, State state, int likeCount, int commentCount, LocalDateTime createdAt) {
+    public PostSaveResponseDto(Long postId, String username, String title, String mediaUrl, String description, State state, Long likeCount, Long commentCount, LocalDateTime createdAt) {
         this.postId = postId;
         this.username = username;
         this.title = title;

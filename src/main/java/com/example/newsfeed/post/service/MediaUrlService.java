@@ -47,9 +47,9 @@ public class MediaUrlService {
     }
 
     public void deleteByPost(Post post){
-//        UploadFile uploadFile = fileRepository.findById(fileId)
-//                .orElseThrow(() -> new IllegalArgumentException("파일을 찾을 수 없습니다."));
+
         List<MediaUrl> media=new ArrayList<>();
+
         try {
              media = mediaUrlRepository.findAllByPost(post);
         }catch(Exception ex){

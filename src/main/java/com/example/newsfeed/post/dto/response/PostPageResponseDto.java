@@ -15,11 +15,11 @@ public class PostPageResponseDto {
 
     private final String mediaUrl;
 
-    private final int likeCount;
+    private final Long likeCount;
 
-    private final int commentCount;
+    private final Long commentCount;
 
-    public PostPageResponseDto( Long postId, String title, String description, String mediaUrl, int likeCount, int commentCount) {
+    public PostPageResponseDto( Long postId, String title, String description, String mediaUrl, Long likeCount, Long commentCount) {
         this.postId = postId;//후에 댓글 파라미터 추가
         this.title = title;
         this.description = description;

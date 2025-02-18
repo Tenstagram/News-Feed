@@ -53,5 +53,4 @@ public class Comment {
     // null 이면 삭제 안된 상태 => soft delete 처리
     private LocalDateTime deletedAt;
 
-
 }
