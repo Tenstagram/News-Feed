@@ -32,65 +32,54 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PostSaveResponseDto> save(HttpServletRequest request, @RequestPart(name="postRequest") PostSaveRequestDto dto, @RequestPart(name="file") List<MultipartFile> mediaUrl) throws IOException {
+    public ResponseEntity<PostSaveResponseDto> save(HttpServletRequest request, @RequestPart(name = "postRequest") PostSaveRequestDto dto, @RequestPart(name = "file") List<MultipartFile> mediaUrl) throws IOException {
 
         HttpSession session = request.getSession();// 테스트용 세션 생성(수정할  예정)
 
         session.setAttribute("LOGIN_USER", "1"); // 테스트용 서버 메모리에 세션 저장(수정)
 
-        return ResponseEntity.ok(postService.save(dto,mediaUrl));
+        return ResponseEntity.ok(postService.save(dto, mediaUrl));
     }
 
     @GetMapping
-    public ResponseEntity<List<PostResponseDto>> findAll(){
+    public ResponseEntity<List<PostResponseDto>> findAll() {
         return ResponseEntity.ok(postService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PostResponseDto> findById(@PathVariable Long id){
+    public ResponseEntity<PostResponseDto> findById(@PathVariable Long id) {
         return ResponseEntity.ok(postService.findById(id));
     }
-
-//    @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)  // ✅ 올바른 문법
-//    public ResponseEntity<PostUpdateResponseDto> updateById(@PathVariable Long id, @RequestPart(name="postUpdateRequest") PostUpdateRequestDto dto, @RequestPart(name="image") MultipartFile image) throws IOException {
-//        return ResponseEntity.ok(postService.updateById(id,dto,image));
-//    }
-
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<String> deleteById(@PathVariable Long id){//로그인세션 id 추가
-//        postService.deleteById(id);
-//        return ResponseEntity.ok("게시물이 삭제되었습니다.");
-//    }
 
     @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PostUpdateResponseDto> update(
             @SessionAttribute(name = Const.LOGIN_USER) Long userId, @PathVariable Long id,
-            @RequestPart(name="postUpdateRequest") PostUpdateRequestDto dto, @RequestPart(name="file") List<MultipartFile> mediaUrl) throws IOException {
+            @RequestPart(name = "postUpdateRequest") PostUpdateRequestDto dto, @RequestPart(name = "file") List<MultipartFile> mediaUrl) throws IOException {
 
-        if(userId==1) {//본인인지 체크 후 맞으면 실행
-            return ResponseEntity.ok(postService.updateById(id, dto,mediaUrl));
-        }else {//틀리면 에러
+        if (userId == 1) {//본인인지 체크 후 맞으면 실행
+            return ResponseEntity.ok(postService.updateById(id, dto, mediaUrl));
+        } else {//틀리면 에러
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "수정할 권한이 없습니다.");
         }
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<String> changeState(
-            @SessionAttribute(name = Const.LOGIN_USER) Long userId, @PathVariable Long id,
-            @RequestBody PostStateChangeRequestDto dto){
-        if(userId==1) {//본인인지 체크 후 맞으면 실행
-            return ResponseEntity.ok(postService.changeState(id, dto)+"게시물입니다.");
-        }else {//틀리면 에러
+    public ResponseEntity<String> changeState(//상태변경 메서드
+                                              @SessionAttribute(name = Const.LOGIN_USER) Long userId, @PathVariable Long id,
+                                              @RequestBody PostStateChangeRequestDto dto) {
+        if (userId == 1) {//본인인지 체크 후 맞으면 실행
+            return ResponseEntity.ok(postService.changeState(id, dto) + "게시물입니다.");
+        } else {//틀리면 에러
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "수정할 권한이 없습니다.");
         }
     }
 
     @DeleteMapping("/{id}")
-    public void delete( @SessionAttribute(name = Const.LOGIN_USER) Long userId,
-                                   @PathVariable Long id) {
-        if(userId==1) {
+    public void delete(@SessionAttribute(name = Const.LOGIN_USER) Long userId,
+                       @PathVariable Long id) {
+        if (userId == 1) {
             postService.deleteById(id);
-        }else {
+        } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "삭제할 권한이 없습니다.");
         }
     }
@@ -105,13 +94,13 @@ public class PostController {
     }
 
     @PostMapping("/{id}/likes")
-    public ResponseEntity<String> postLike(@PathVariable Long id){
+    public ResponseEntity<String> postLike(@PathVariable Long id) {
         postService.postLike(id);
         return ResponseEntity.ok("좋아요를 눌렀습니다.");
     }
 
     @DeleteMapping("/{id}/cancel")
-    public ResponseEntity<String> postLikeCancel(@PathVariable Long id){
+    public ResponseEntity<String> postLikeCancel(@PathVariable Long id) {
         postService.postLikeCancel(id);
         return ResponseEntity.ok("좋아요를 취소했습니다.");
     }
