@@ -2,7 +2,6 @@ package com.example.newsfeed.comment.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.HttpSessionRequiredException;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,6 +17,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
+    @ExceptionHandler(RepetitionLikeException.class)
+    public ResponseEntity<String> repetitionLikeException(RepetitionLikeException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
     // 사용자 인증 관련 => 401 UNAUTHORIZED
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<String> authenticationException() {
@@ -28,12 +32,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DeletedCommentException.class)
     public ResponseEntity<String> deletedCommentException() {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 삭제된 댓글입니다.");
-    }
-
-
-    @ExceptionHandler(RepetitionLikexception.class)
-    public ResponseEntity<String> repetitionLikeException() {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 좋아요를 눌렀습니다.");
     }
 
 
