@@ -40,7 +40,6 @@ public class PostService {
     private final MediaUrlService mediaUrlService;
     private final State STATE_DELETE = State.DELETE;
 
-
     @Transactional
     public PostSaveResponseDto save(PostSaveRequestDto dto, List<MultipartFile> mediaUrl) {
 
