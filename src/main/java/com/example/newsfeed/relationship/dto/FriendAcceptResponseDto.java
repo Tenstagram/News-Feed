@@ -23,9 +23,9 @@ public class FriendAcceptResponseDto {
     public static FriendAcceptResponseDto of(Relationship relationship) {
         return new FriendAcceptResponseDto(
                 relationship.getId(),
-                relationship.getReceiverId(),
-                relationship.getSenderId(),
-                relationship.getUpdatedAt()
+                relationship.getReceiver().getId(),
+                relationship.getSender().getId(),
+                relationship.getModifiedAt()
         );
     }
 }

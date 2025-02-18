@@ -2,7 +2,7 @@ package com.example.newsfeed.member.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import org.hibernate.annotations.ColumnDefault;
+
 import java.util.UUID;
 
 
@@ -32,7 +32,6 @@ public class Member extends BaseEntity{
 
     //회원 탈퇴, 회원가입 시
     @Enumerated(EnumType.STRING)
-    @ColumnDefault("ACTIVATE")
     private MemberStatus status;
 
     public Member(String name, String email, String password) {

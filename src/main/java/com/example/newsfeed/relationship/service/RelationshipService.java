@@ -1,5 +1,7 @@
 package com.example.newsfeed.relationship.service;
 
+import com.example.newsfeed.member.entity.Member;
+import com.example.newsfeed.member.repository.MemberRepository;
 import com.example.newsfeed.relationship.dto.FollowResponseDto;
 import com.example.newsfeed.relationship.dto.FriendAcceptResponseDto;
 import com.example.newsfeed.relationship.dto.FriendRequestResponseDto;
@@ -18,14 +20,22 @@ import java.util.List;
 public class RelationshipService {
 
     private final RelationshipRepository relationshipRepository;
+    private final MemberRepository memberRepository;
 
     @Transactional
     public FriendRequestResponseDto sendFriendRequest(Long senderId, Long receiverId) {
-        if (relationshipRepository.existsBySenderIdAndReceiverId(senderId, receiverId)) {
-            throw new IllegalStateException("이미 친구 요청을 보냈습니다.");
+        if (relationshipRepository.existsBySenderIdAndReceiverId(senderId, receiverId) ||
+                relationshipRepository.existsBySenderIdAndReceiverId(receiverId, senderId)) {
+            throw new IllegalStateException("이미 친구 요청을 보냈거나 상대방이 요청을 보냈습니다.");
         }
 
-        Relationship relationship = new Relationship(senderId, receiverId);
+        Member sender = memberRepository.findById(senderId)
+                .orElseThrow(IllegalStateException::new);
+
+        Member receiver = memberRepository.findById(receiverId)
+                .orElseThrow(IllegalStateException::new);
+
+        Relationship relationship = new Relationship(sender, receiver);
         relationship.updateStatus(RelationshipStatus.REQUESTED);
         Relationship savedRelationship = relationshipRepository.save(relationship);
         return FriendRequestResponseDto.of(savedRelationship);
@@ -38,7 +48,7 @@ public class RelationshipService {
                 .orElseThrow(IllegalStateException::new);
 
         //  요청을 받은 사용자인지 검증
-        if (!relationship.getReceiverId().equals(receiverId)) {
+        if (!relationship.getReceiver().getId().equals(receiverId)) {
             throw new IllegalArgumentException("해당 친구 요청을 수락할 권한이 없습니다.");
         }
 
@@ -63,7 +73,7 @@ public class RelationshipService {
                 .orElseThrow(IllegalStateException::new);
 
         //  요청을 받은 사용자인지 검증
-        if (!relationship.getReceiverId().equals(receiverId)) {
+        if (!relationship.getReceiver().getId().equals(receiverId)) {
             throw new IllegalArgumentException("해당 친구 요청을 거절할 권한이 없습니다.");
         }
 
@@ -73,7 +83,7 @@ public class RelationshipService {
 
     public List<FollowResponseDto> getFollowers(Long memberId) {
         // 내가 팔로우 한 사람 목록 조회
-        List<Relationship> relationships = relationshipRepository.findByFromMemberId(memberId);
+//        List<Relationship> relationships = relationshipRepository.findByFromMemberId(memberId);
         return null;
 //        return relationshipRepository.findByFromMemberId(memberId)
 //                .stream()

@@ -1,4 +1,4 @@
-package com.example.newsfeed.relationship;
+package com.example.newsfeed.relationship.controller;
 
 import com.example.newsfeed.relationship.dto.FollowResponseDto;
 import com.example.newsfeed.relationship.dto.FriendAcceptResponseDto;
@@ -20,10 +20,9 @@ public class RelationshipController {
     // 친구 추가 요청
     @PostMapping("/follows/{receiverId}/request")
     public ResponseEntity<FriendRequestResponseDto> sendFriendRequest(
+            @SessionAttribute(name = "token") Long senderId,
             @PathVariable Long receiverId
-//            @SessionAttribute(name = Const.LOGIN_USER) Long senderId
     ) {
-        Long senderId = 1L; // 임시 사용자 id(나중에 세션으로 적용)
         FriendRequestResponseDto response = relationshipService.sendFriendRequest(senderId, receiverId);
         return ResponseEntity.ok(response);
     }
@@ -31,10 +30,9 @@ public class RelationshipController {
     // 친구 추가 요청 수락
     @PostMapping("/follows/{relationshipId}/accept")
     public ResponseEntity<FriendAcceptResponseDto> acceptFriendRequest(
-//            @SessionAttribute(name = Const.LOGIN_USER) Long senderId
+            @SessionAttribute(name = "token") Long receiverId,
             @PathVariable Long relationshipId
     ) {
-        Long receiverId = 2L; // 임시 사용자 id(나중에 세션으로 적용), 요청을 받은 쪽
         FriendAcceptResponseDto response = relationshipService.acceptFriendRequest(receiverId, relationshipId);
         return ResponseEntity.ok(response);
     }
@@ -42,17 +40,18 @@ public class RelationshipController {
     // 친구 추가 요청 거절
     @PostMapping("/follows/{relationshipId}/reject")
     public ResponseEntity<Void> rejectFriendRequest(
+            @SessionAttribute(name = "token") Long receiverId,
             @PathVariable Long relationshipId
     ) {
-        Long receiverId = 2L; // 임시 사용자 id(나중에 세션으로 적용), 요청을 받은 쪽
         relationshipService.rejectFriendRequest(receiverId, relationshipId);
         return ResponseEntity.ok().build();
     }
 
     // 팔로우 목록 전체 조회
     @GetMapping("/follows/followers")
-    public ResponseEntity<List<FollowResponseDto>> getFollowers() {
-        Long memberId = 1L; // 임시 사용자 id
+    public ResponseEntity<List<FollowResponseDto>> getFollowers(
+            @SessionAttribute(name = "token") Long memberId
+    ) {
 
         return null;
     }
