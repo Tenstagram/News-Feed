@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -84,20 +85,43 @@ public class RelationshipService {
 
     public List<FollowResponseDto> getFollowers(Long memberId) {
         // 내가 팔로우 한 사람 목록 조회
-//        List<Relationship> relationships = relationshipRepository.findByFromMemberId(memberId);
-        return null;
-//        return relationshipRepository.findByFromMemberId(memberId)
-//                .stream()
-//                .map(FollowResponseDto::of)
-//                .toList();
+        return relationshipRepository.findBySenderIdAndStatusNot(memberId, RelationshipStatus.BLOCKED)
+                .stream()
+                .map(relationship -> {
+                    Member toMember = memberRepository.findById(relationship.getReceiver().getId())
+                            .orElseThrow(IllegalStateException::new);
+                    return FollowResponseDto.of(relationship, toMember);
+                })
+                .toList();
     }
 
-    public Relationship getFollowing() {
-        return null;
+    public List<FollowResponseDto> getFollowing(Long memberId) {
+        // 나를 팔로우 한 사람 목록 조회
+        return relationshipRepository.findByReceiverIdAndStatusNot(memberId, RelationshipStatus.BLOCKED)
+                .stream()
+                .map(relationship -> {
+                    Member fromMember = memberRepository.findById(relationship.getSender().getId())
+                            .orElseThrow(IllegalStateException::new);
+                    return FollowResponseDto.of(relationship, fromMember);
+                })
+                .toList();
     }
 
-    public Relationship getMutualFollowers() {
-        return null;
+    public List<FollowResponseDto> getMutualFollowers(Long memberId) {
+        // 나와 맞팔인 사람 목록 조회
+
+        // 내가 팔로우 한 사람 중 나의 요청을 수락한 경우
+        List<Relationship> acceptedByThem = relationshipRepository.findBySenderIdAndStatus(memberId, RelationshipStatus.ACCEPTED);
+        
+        // 나를 팔로우 한 사람 중 내가 수락한 경우
+        List<Relationship> acceptedByMe = relationshipRepository.findByReceiverIdAndStatus(memberId, RelationshipStatus.ACCEPTED);
+
+        // 새로운 맞팔 리스트 생성
+        List<FollowResponseDto> mutualFollowers = new ArrayList<>();
+        acceptedByThem.forEach(r -> mutualFollowers.add(FollowResponseDto.of(r, r.getReceiver())));
+        acceptedByMe.forEach(r -> mutualFollowers.add(FollowResponseDto.of(r, r.getSender())));
+
+        return mutualFollowers;
     }
 
     public Relationship getBlockedMembers() {
