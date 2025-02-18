@@ -1,5 +1,6 @@
 package com.example.newsfeed.member.controller;
 
+import com.example.newsfeed.member.command.SignupMemberCommand;
 import com.example.newsfeed.member.dto.LoginRequestDto;
 import com.example.newsfeed.member.dto.LoginResponseDto;
 import com.example.newsfeed.member.dto.SignupRequestDto;
@@ -26,7 +27,8 @@ public class AuthController {
     //회원가입 이름,이메일,비밀번호
     @PostMapping("/signup")
     public ResponseEntity<SignupResponseDto> signUp(@Valid @RequestBody SignupRequestDto dto) {
-        SignupResponseDto signupResponseDto = memberService.signUp(dto);
+        SignupMemberCommand signupCommand = new SignupMemberCommand(dto.getName(), dto.getEmail(), dto.getPassword());
+        SignupResponseDto signupResponseDto = memberService.signUp(signupCommand);
         return new ResponseEntity<>(signupResponseDto, HttpStatus.CREATED);
     }
 

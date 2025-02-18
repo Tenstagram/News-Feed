@@ -1,5 +1,6 @@
 package com.example.newsfeed.member.service;
 
+import com.example.newsfeed.member.command.SignupMemberCommand;
 import com.example.newsfeed.member.dto.LoginResponseDto;
 import com.example.newsfeed.member.dto.MemberResponseDto;
 import com.example.newsfeed.member.dto.SignupRequestDto;
@@ -28,12 +29,11 @@ public class MemberService {
 
     //회원가입 이름 이메일 비밀번호
     @Transactional
-    public SignupResponseDto signUp(SignupRequestDto dto) {
-        String password = encoder.encode(dto.getPassword());
+    public SignupResponseDto signUp(SignupMemberCommand command) {
+        String password = encoder.encode(command.getPassword());
         //새로운 유저 생성 및 저장
-
-        Member member= new Member(dto.getName(),dto.getEmail(),password);
-
+        //커맨드 사용
+        Member member= new Member(command.getName(),command.getEmail(),password);
         Member savedMember = memberRepository.save(member);
         return SignupResponseDto.toDto(savedMember);
     }
