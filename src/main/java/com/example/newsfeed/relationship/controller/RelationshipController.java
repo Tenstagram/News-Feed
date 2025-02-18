@@ -61,8 +61,8 @@ public class RelationshipController {
     public ResponseEntity<List<FollowResponseDto>> getFollowing(
             @SessionAttribute(name = "token") Long memberId
     ) {
-
-        return null;
+        List<FollowResponseDto> following = relationshipService.getFollowing(memberId);
+        return ResponseEntity.ok(following);
     }
 
     // 맞팔한 목록 전체 조회
