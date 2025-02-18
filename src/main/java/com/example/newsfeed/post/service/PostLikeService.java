@@ -14,10 +14,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PostLikeService {
 
-    //- 사용자가 게시물이나 댓글에 좋아요를 남기거나 취소할 수 있습니다.
-    //- 본인이 작성한 게시물과 댓글에 좋아요를 남길 수 없습니다.
-    //- 같은 게시물에는 사용자당 한 번만 좋아요가 가능합니다.<-이게 걸림..
-
     private final PostLikeRepository postLikeRepository;
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
