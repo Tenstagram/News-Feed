@@ -27,10 +27,8 @@ public class LoginFilter implements Filter {
     ) throws IOException, ServletException {
 
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-        String requestURI = httpRequest.getRequestURI();
-
-
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
+        String requestURI = httpRequest.getRequestURI();
 
         log.info("로그인 필터 로직 실행");
 
