@@ -7,9 +7,8 @@ import com.example.newsfeed.post.dto.response.PostResponseDto;
 import com.example.newsfeed.post.dto.response.PostSaveResponseDto;
 import com.example.newsfeed.post.dto.request.PostUpdateRequestDto;
 import com.example.newsfeed.post.dto.response.PostUpdateResponseDto;
-import com.example.newsfeed.post.service.MediaUrlService;
 import com.example.newsfeed.post.service.PostService;
-import com.example.newsfeed.post.util.Const;
+import com.example.newsfeed.util.Const;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -100,7 +99,7 @@ public class PostController {
         return ResponseEntity.ok("좋아요를 눌렀습니다.");
     }
 
-    @DeleteMapping("/{id}/cancel")
+    @PostMapping("/{id}/cancel")
     public ResponseEntity<String> postLikeCancel(@PathVariable Long id) {
         postService.postLikeCancel(id);
         return ResponseEntity.ok("좋아요를 취소했습니다.");

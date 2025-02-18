@@ -11,7 +11,8 @@ import org.springframework.util.PatternMatchUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-
+// post 에 있던 LoginFilter 클래스랑 명칭 겹쳐서,
+// post 만 도메인 밖으로 빼놓고 이건 일단 냅뒀습니다.
 @Slf4j
 public class LoginFilter implements Filter {
 

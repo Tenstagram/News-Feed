@@ -95,7 +95,7 @@ public class CommentController {
     }
 
     // 댓글 좋아요 취소
-    @PostMapping("/{commentId}/like")
+    @PostMapping("/{commentId}/unlike")
     public ResponseEntity<String> unlikeComment(@PathVariable Long commentId,
                                                 @SessionAttribute(name = "memberId") Long memberId){
         commentService.unlikeComment(commentId, memberId);
