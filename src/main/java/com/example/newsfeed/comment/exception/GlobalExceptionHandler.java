@@ -30,6 +30,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 삭제된 댓글입니다.");
     }
 
+
+    @ExceptionHandler(RepetitionLikexception.class)
+    public ResponseEntity<String> repetitionLikeException() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 좋아요를 눌렀습니다.");
+    }
+
+
     // 다른 예외는 그때 그때 메세지를 get 받을 수 있는 데,
     // ServletRequestBindingException 는 바로 터져서 메세지를 get 받을 틈이 없음
     // => 그래서 핸들러 단위에서 미리 반환시킬 메세지를 입력해놓음
@@ -39,6 +46,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> servletRequestBindingException() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
     }
+
+
+
+
 
 
 
