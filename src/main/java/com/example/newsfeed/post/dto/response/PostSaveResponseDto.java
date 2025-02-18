@@ -27,8 +27,6 @@ public class PostSaveResponseDto {
 
     private final LocalDateTime createdAt;
 
-//    private LocalDateTime updatedAt; 생성할 때는 수정시간 생략 어떨까요?
-
     public PostSaveResponseDto(Long postId, String username, String title, String mediaUrl, String description, State state, int likeCount, int commentCount, LocalDateTime createdAt) {
         this.postId = postId;
         this.username = username;

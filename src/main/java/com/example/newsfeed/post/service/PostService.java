@@ -1,5 +1,7 @@
 package com.example.newsfeed.post.service;
 
+import com.example.newsfeed.member.entity.Member;
+import com.example.newsfeed.member.repository.MemberRepository;
 import com.example.newsfeed.post.dto.request.PostStateChangeRequestDto;
 import com.example.newsfeed.post.dto.response.PostPageResponseDto;
 import com.example.newsfeed.post.dto.request.PostSaveRequestDto;
@@ -35,18 +37,20 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository postRepository;
-    @Autowired
-    private final MediaUrlRepository mediaUrlRepository;
+    private final MemberRepository memberRepository;
     private final MediaUrlService mediaUrlService;
     private final State STATE_DELETE = State.DELETE;
 
     @Transactional
-    public PostSaveResponseDto save(PostSaveRequestDto dto, List<MultipartFile> mediaUrl) {
+    public PostSaveResponseDto save(Long userId, PostSaveRequestDto dto, List<MultipartFile> mediaUrl) {
 
         String fileNameList = getFileName(mediaUrl);
         //       String fileNameList=fileName.toString();
 
-        Post post = new Post(dto.getTitle(), fileNameList, dto.getDescription(), dto.getState());
+        Member member= memberRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
+
+        Post post = new Post(member, dto.getTitle(), fileNameList, dto.getDescription(), dto.getState());
 
         Post savePost = postRepository.save(post);
 
@@ -59,7 +63,7 @@ public class PostService {
         }
 
         return new PostSaveResponseDto(savePost.getPostId(),
-                savePost.getName(),//getMember.getName()으로 나중에 수정
+                savePost.getMember().getName(),
                 savePost.getTitle(),
                 savePost.getMediaUrl(),
                 savePost.getDescription(),
@@ -75,6 +79,7 @@ public class PostService {
                 .map(post -> new PostResponseDto(
                         post.getPostId(),
                         post.getTitle(),
+                        post.getMember().getName(),
                         post.getMediaUrl(),
                         post.getDescription(),
                         post.getState(),
@@ -94,6 +99,7 @@ public class PostService {
         return new PostResponseDto(
                 post.getPostId(),
                 post.getTitle(),
+                post.getMember().getName(),
                 post.getMediaUrl(),
                 post.getDescription(),
                 post.getState(),

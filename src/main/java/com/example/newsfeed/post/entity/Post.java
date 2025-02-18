@@ -22,8 +22,6 @@ public class Post extends BaseEntity{
 
     private String description;
 
-    private String name;
-
     @ManyToOne
     @JoinColumn(name="member_id")
     private Member member;
@@ -36,7 +34,8 @@ public class Post extends BaseEntity{
     @Column(nullable = false)
     private State state;
 
-    public Post(String title, String mediaUrl, String description, State state){
+    public Post(Member member, String title, String mediaUrl, String description, State state){
+        this.member=member;
         this.title=title;
         this.mediaUrl=mediaUrl;
         this.description=description;

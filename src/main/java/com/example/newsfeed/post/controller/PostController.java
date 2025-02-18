@@ -33,9 +33,8 @@ public class PostController {
 
     //게시물 생성
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PostSaveResponseDto> save( @Valid @RequestPart(name = "postRequest") PostSaveRequestDto dto, @RequestPart(name = "file") List<MultipartFile> mediaUrl) throws IOException {
-
-        return ResponseEntity.ok(postService.save(dto, mediaUrl));
+    public ResponseEntity<PostSaveResponseDto> save( @SessionAttribute(name = "token") Long userId, @Valid @RequestPart(name = "postRequest") PostSaveRequestDto dto, @RequestPart(name = "file") List<MultipartFile> mediaUrl) throws IOException {
+        return ResponseEntity.ok(postService.save(userId, dto, mediaUrl));
     }
 
     //게시물 전체 조회
