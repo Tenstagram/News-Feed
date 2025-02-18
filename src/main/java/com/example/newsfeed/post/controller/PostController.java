@@ -8,9 +8,7 @@ import com.example.newsfeed.post.dto.response.PostSaveResponseDto;
 import com.example.newsfeed.post.dto.request.PostUpdateRequestDto;
 import com.example.newsfeed.post.dto.response.PostUpdateResponseDto;
 import com.example.newsfeed.post.service.PostService;
-import com.example.newsfeed.util.Const;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,9 +32,9 @@ public class PostController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PostSaveResponseDto> save(HttpServletRequest request, @Valid @RequestPart(name = "postRequest") PostSaveRequestDto dto, @RequestPart(name = "file") List<MultipartFile> mediaUrl) throws IOException {
 
-        HttpSession session = request.getSession();// 테스트용 세션 생성(수정할  예정)
-
-        session.setAttribute("LOGIN_USER", "1"); // 테스트용 서버 메모리에 세션 저장(수정)
+//        HttpSession session = request.getSession();// 테스트용 세션 생성(수정할  예정)
+//
+//        session.setAttribute("token", "1"); // 테스트용 서버 메모리에 세션 저장(수정)
 
         return ResponseEntity.ok(postService.save(dto, mediaUrl));
     }
@@ -53,8 +51,8 @@ public class PostController {
 
     @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PostUpdateResponseDto> update(@Valid
-            @SessionAttribute(name = Const.LOGIN_USER) Long userId, @PathVariable Long id,
-            @RequestPart(name = "postUpdateRequest") PostUpdateRequestDto dto, @RequestPart(name = "file") List<MultipartFile> mediaUrl) throws IOException {
+                                                        @SessionAttribute(name = "token") Long userId, @PathVariable Long id,
+                                                        @RequestPart(name = "postUpdateRequest") PostUpdateRequestDto dto, @RequestPart(name = "file") List<MultipartFile> mediaUrl) throws IOException {
 
         if (userId == 1) {//본인인지 체크 후 맞으면 실행
             return ResponseEntity.ok(postService.updateById(id, dto, mediaUrl));
@@ -65,7 +63,7 @@ public class PostController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<String> changeState(//상태변경 메서드
-                                              @SessionAttribute(name = Const.LOGIN_USER) Long userId, @PathVariable Long id,
+                                              @SessionAttribute(name = "token") Long userId, @PathVariable Long id,
                                               @RequestBody PostStateChangeRequestDto dto) {
         if (userId == 1) {//본인인지 체크 후 맞으면 실행
             return ResponseEntity.ok(postService.changeState(id, dto) + "게시물입니다.");
@@ -75,7 +73,7 @@ public class PostController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@SessionAttribute(name = Const.LOGIN_USER) Long userId,
+    public void delete(@SessionAttribute(name = "token") Long userId,
                        @PathVariable Long id) {
         if (userId == 1) {
             postService.deleteById(id);
