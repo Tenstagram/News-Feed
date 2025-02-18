@@ -86,12 +86,11 @@ public class MemberController {
     }
 
     //유저 삭제(탈퇴)
-    //TODO 비밀번호 검증
     @DeleteMapping("/delete")
     public ResponseEntity<Void> delete(
         @SessionAttribute(name = "token")Long memberId
-        ) {
-        memberService.delete(memberId);
+        ,@RequestBody DeleteRequestDto dto) {
+        memberService.delete(memberId,dto.getPassword());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
     }

@@ -34,10 +34,11 @@ public class Member extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private MemberStatus status;
 
-    public Member(String name, String email, String password) {
+    public Member(String name, String email, String password, MemberStatus status) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.status = status;
     }
 
     public Member() {
@@ -62,9 +63,6 @@ public class Member extends BaseEntity{
 
     public void delete() {
         this.status = MemberStatus.DELETED;
-        this.name = UUID.randomUUID().toString();
-        this.email = UUID.randomUUID().toString(); //아 맞다!!!
-        this.password = UUID.randomUUID().toString();
-        this.profileUrl = UUID.randomUUID().toString();
     }
+
 }
