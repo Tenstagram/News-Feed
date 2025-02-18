@@ -9,6 +9,7 @@ import com.example.newsfeed.post.dto.request.PostUpdateRequestDto;
 import com.example.newsfeed.post.dto.response.PostUpdateResponseDto;
 import com.example.newsfeed.post.entity.MediaUrl;
 import com.example.newsfeed.post.entity.Post;
+import com.example.newsfeed.post.entity.State;
 import com.example.newsfeed.post.repository.MediaUrlRepository;
 import com.example.newsfeed.post.repository.PostRepository;
 import jakarta.transaction.Transactional;
@@ -24,31 +25,34 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PostService{
-    
+public class PostService {
+
     private final PostRepository postRepository;
     @Autowired
     private final MediaUrlRepository mediaUrlRepository;
     private final MediaUrlService mediaUrlService;
+    private final State STATE_DELETE = State.DELETE;
+
 
     @Transactional
     public PostSaveResponseDto save(PostSaveRequestDto dto, List<MultipartFile> mediaUrl) {
 
-        String fileNameList=getFileName(mediaUrl);
+        String fileNameList = getFileName(mediaUrl);
         //       String fileNameList=fileName.toString();
 
-        Post post= new Post(dto.getTitle(), fileNameList, dto.getDescription(), dto.getState());
+        Post post = new Post(dto.getTitle(), fileNameList, dto.getDescription(), dto.getState());
 
-        Post savePost=postRepository.save(post);
+        Post savePost = postRepository.save(post);
 
         try {
-            for(MultipartFile m: mediaUrl) {
+            for (MultipartFile m : mediaUrl) {
                 mediaUrlService.upload(post, m);
             }
         } catch (IOException e) {
@@ -83,7 +87,10 @@ public class PostService{
     @Transactional
     public PostResponseDto findById(Long id) {
         Post post = postRepository.findById(id)
-                .orElseThrow(()->new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
+
+        if (post.getState() == STATE_DELETE) //삭제상태인지 확인
+            throw new IllegalArgumentException("해당 게시글은 삭제됐습니다.");
 
         return new PostResponseDto(
                 post.getPostId(),
@@ -96,18 +103,26 @@ public class PostService{
     }
 
     @Transactional
-    public PostUpdateResponseDto updateById(Long id, PostUpdateRequestDto dto, List<MultipartFile>  mediaUrl) throws IOException {
+    public PostUpdateResponseDto updateById(Long id, PostUpdateRequestDto dto, List<MultipartFile> mediaUrl) throws IOException {
         Post post = postRepository.findById(id)
-                .orElseThrow(()-> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
 
-        String fileName=getFileName(mediaUrl);
+        if (post.getState() == STATE_DELETE) //삭제상태인지 확인
+            throw new IllegalArgumentException("해당 게시글은 삭제됐습니다.");
+
+        String fileName = getFileName(mediaUrl);
 
         post.update(dto.getTitle(), fileName,
                 dto.getDescription(), dto.getState());
 
-        for(MultipartFile m: mediaUrl){
-            MediaUrl media=mediaUrlService.updateMediaByPostId(post, m);
-            media.setPost(post);
+        mediaUrlService.deleteByPost(post);
+
+        try {
+            for (MultipartFile m : mediaUrl) {
+                mediaUrlService.upload(post, m);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         return new PostUpdateResponseDto(
@@ -124,7 +139,7 @@ public class PostService{
     public void deleteById(Long id) {
 
         Post post = postRepository.findById(id)
-                .orElseThrow(()-> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
 
         mediaUrlService.deleteByPost(post);
 
@@ -133,8 +148,8 @@ public class PostService{
 
     @Transactional
     public Page<PostPageResponseDto> findAllPage(int page, int size) {
-        Pageable pageable= PageRequest.of(page-1,size);
-        Page<Post> pageS = postRepository.findAllByOrderByCreatedAtDesc (pageable);
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Post> pageS = postRepository.findAllByOrderByCreatedAtDesc(pageable);
 
         return pageS.map(post ->
                 new PostPageResponseDto(post.getPostId(),
@@ -147,38 +162,42 @@ public class PostService{
     }
 
     @Transactional
-    public String changeState(Long id, PostStateChangeRequestDto dto){
-        Post post=postRepository.findById(id)
-                .orElseThrow(()-> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
+    public String changeState(Long id, PostStateChangeRequestDto dto) {//상태변경
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
 
         post.changeState(dto.getState());
+
+        if (dto.getState() == STATE_DELETE) {//만약 삭제상태로 변경한다면
+            post.setDeletedAt();
+        }
 
         return post.getState().getValue();
 
     }
 
     @Transactional
-    public void postLike(Long id) {
+    public void postLike(Long id) {//좋아요
         Post post = postRepository.findById(id)
-                .orElseThrow(()-> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
 
         post.plusLikeCount();
     }
 
     @Transactional
-    public void postLikeCancel(Long id) {
+    public void postLikeCancel(Long id) {//좋아요 취소
         Post post = postRepository.findById(id)
-                .orElseThrow(()-> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
 
         post.cancelLikeCount();
     }
 
     @Transactional
-    public String getFileName( List<MultipartFile>  mediaUrl){
-        StringBuffer fileName=new StringBuffer();
+    public String getFileName(List<MultipartFile> mediaUrl) {//받은 이미지 이름들을 모아 String으로 변경
+        StringBuffer fileName = new StringBuffer();
 
-        for(MultipartFile m: mediaUrl){
-            fileName.append(m.getOriginalFilename()+",");
+        for (MultipartFile m : mediaUrl) {
+            fileName.append(m.getOriginalFilename() + ",");
         }
         fileName.deleteCharAt(fileName.length() - 1);
 

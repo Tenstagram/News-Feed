@@ -3,6 +3,7 @@ package com.example.newsfeed.post.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Entity
@@ -49,8 +50,8 @@ public class Post extends BaseEntity{
     }
 
     public void changeState(State state){
-        this.state=state;
-    }
+       this.state=state;
+   }
 
     public void plusLikeCount(){
         likeCount++;
