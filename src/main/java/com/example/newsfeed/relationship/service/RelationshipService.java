@@ -67,6 +67,7 @@ public class RelationshipService {
         return FriendAcceptResponseDto.of(relationship);
     }
 
+    @Transactional
     public void rejectFriendRequest(Long receiverId, Long relationshipId) {
         // 친구 요청이 존재하는지 확인
         Relationship relationship = relationshipRepository.findById(relationshipId)

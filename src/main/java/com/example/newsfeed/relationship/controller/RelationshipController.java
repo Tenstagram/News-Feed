@@ -38,7 +38,7 @@ public class RelationshipController {
     }
 
     // 친구 추가 요청 거절
-    @PostMapping("/follows/{relationshipId}/reject")
+    @DeleteMapping("/follows/{relationshipId}/reject")
     public ResponseEntity<Void> rejectFriendRequest(
             @SessionAttribute(name = "token") Long receiverId,
             @PathVariable Long relationshipId
