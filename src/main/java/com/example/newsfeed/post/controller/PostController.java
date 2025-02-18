@@ -12,6 +12,7 @@ import com.example.newsfeed.post.service.PostService;
 import com.example.newsfeed.post.util.Const;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,7 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PostSaveResponseDto> save(HttpServletRequest request, @RequestPart(name = "postRequest") PostSaveRequestDto dto, @RequestPart(name = "file") List<MultipartFile> mediaUrl) throws IOException {
+    public ResponseEntity<PostSaveResponseDto> save(HttpServletRequest request, @Valid @RequestPart(name = "postRequest") PostSaveRequestDto dto, @RequestPart(name = "file") List<MultipartFile> mediaUrl) throws IOException {
 
         HttpSession session = request.getSession();// 테스트용 세션 생성(수정할  예정)
 
@@ -52,7 +53,7 @@ public class PostController {
     }
 
     @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PostUpdateResponseDto> update(
+    public ResponseEntity<PostUpdateResponseDto> update(@Valid
             @SessionAttribute(name = Const.LOGIN_USER) Long userId, @PathVariable Long id,
             @RequestPart(name = "postUpdateRequest") PostUpdateRequestDto dto, @RequestPart(name = "file") List<MultipartFile> mediaUrl) throws IOException {
 
