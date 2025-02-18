@@ -13,8 +13,10 @@ import com.example.newsfeed.comment.exception.NotFoundException;
 import com.example.newsfeed.comment.exception.RepetitionLikeException;
 import com.example.newsfeed.comment.repository.CommentRepository;
 import com.example.newsfeed.comment.repository.LikeCommentRepository;
-import com.example.newsfeed.comment.entity.Post;
-import com.example.newsfeed.comment.entity.Member;
+import com.example.newsfeed.member.entity.Member;
+import com.example.newsfeed.member.repository.MemberRepository;
+import com.example.newsfeed.post.entity.Post;
+import com.example.newsfeed.post.repository.PostRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -33,8 +35,8 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final LikeCommentRepository likeCommentRepository;
 
-//    private final MemberRepository memberRepository;
-//    private final PostRepository postRepository;
+    private final MemberRepository memberRepository;
+    private final PostRepository postRepository;
 
 
     // 댓글 작성 메서드
@@ -156,7 +158,7 @@ public class CommentService {
                 .orElseThrow(() -> new AuthenticationException("2"));
 
         // 중복 좋아요 체크
-        if (likeCommentRepository.existsByComment_CommentIdAndMember_memberId(commentId, memberId)) {
+        if (likeCommentRepository.existsByComment_CommentIdAndMember_id(commentId, memberId)) {
             throw new RepetitionLikeException("이미 좋아요를 눌렀습니다.");
         }
 
@@ -182,7 +184,7 @@ public class CommentService {
                 .orElseThrow(() -> new AuthenticationException("2"));
 
         // 좋아요 여부 검증
-        LikeComment likeComment = likeCommentRepository.findByComment_CommentIdAndMember_memberId(commentId, memberId)
+        LikeComment likeComment = likeCommentRepository.findByComment_CommentIdAndMember_id(commentId, memberId)
                 .orElseThrow(() -> new RepetitionLikeException("좋아요 기록이 없습니다."));
 
         // 좋아요 기록 삭제
@@ -212,7 +214,8 @@ public class CommentService {
                 .orElseThrow(() -> new NotFoundException("댓글을 찾을 수 없습니다."));
 
         // 사용자 인증
-        if (!comment.getMember().getMemberId().equals(memberId)) {
+        // 저는 편의상 멤버 id를 memberId 로 했는 데, 현재 member 객체에 필드명이 id 라서 getId 로 변경
+        if (!comment.getMember().getId().equals(memberId)) {
             // 아무 메세지나 입력해도 전역 핸들러에서 메세지 관리됨
             throw new AuthenticationException("");
         }

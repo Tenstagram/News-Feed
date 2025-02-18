@@ -17,6 +17,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
+    // 댓글 좋아요 관련 예외
     @ExceptionHandler(RepetitionLikeException.class)
     public ResponseEntity<String> repetitionLikeException(RepetitionLikeException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
