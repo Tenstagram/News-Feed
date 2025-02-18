@@ -174,23 +174,6 @@ public class PostService {
         return post.getState().getValue();
 
     }
-
-    @Transactional
-    public void postLike(Long id) {//좋아요
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
-
-        post.plusLikeCount();
-    }
-
-    @Transactional
-    public void postLikeCancel(Long id) {//좋아요 취소
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
-
-        post.cancelLikeCount();
-    }
-
     @Transactional
     public String getFileName(List<MultipartFile> mediaUrl) {//받은 이미지 이름들을 모아 String으로 변경
         StringBuffer fileName = new StringBuffer();

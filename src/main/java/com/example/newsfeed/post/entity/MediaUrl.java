@@ -21,7 +21,7 @@ public class MediaUrl extends BaseEntity{
 
     private String mediaUrl;//파일 경로
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name="post_id", nullable =false)
     private Post post;
 

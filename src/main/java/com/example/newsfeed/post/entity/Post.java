@@ -1,5 +1,6 @@
 package com.example.newsfeed.post.entity;
 
+import com.example.newsfeed.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,11 +24,11 @@ public class Post extends BaseEntity{
 
     private String name;
 
-//    @ManyToOne
-//    @JoinColumn(name="member_id")
-//    private Member member;
+    @ManyToOne
+    @JoinColumn(name="member_id")
+    private Member member;
 
-    private int likeCount;
+    private int likeCount=0;
 
     private int commentCount;
 
@@ -53,12 +54,11 @@ public class Post extends BaseEntity{
        this.state=state;
    }
 
-    public void plusLikeCount(){
+   public void likeCount(){
         likeCount++;
-    }
+   }
 
-    public void cancelLikeCount(){
+   public void cancelLikeCount(){
         likeCount--;
-    }
-
+   }
 }
