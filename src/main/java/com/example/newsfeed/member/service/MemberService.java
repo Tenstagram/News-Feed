@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.management.Query;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -47,15 +49,18 @@ public class MemberService {
     }
 
     //유저 전체 조회
+    @Transactional(readOnly = true)
     public List<MemberResponseDto> findAll() {
-        return memberRepository.findAll().stream().map(MemberResponseDto::toDto).toList();
-
+        return memberRepository.findAll().stream()
+                .filter(member-> member.getStatus().equals(MemberStatus.ACTIVATE))
+                .map(MemberResponseDto::toDto)
+                .toList();
     }
 
     //유저 단건 조회
     public MemberResponseDto findById(Long id) {
-        Member member = memberRepository.findById(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"조회된 정보가 없습니다."));
-        //TODO 삭제된 회원 조회시 "탈퇴한 회원입니다" 예외처리 필요 ->이메일
+        Member member = memberRepository.findById(id).orElseThrow
+                (()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"조회된 정보가 없습니다."));
         if (member.getStatus().equals(MemberStatus.DELETED)) {
             throw new ResponseStatusException(HttpStatus.NO_CONTENT,"탈퇴한 회원입니다.");
         }
@@ -106,8 +111,10 @@ public class MemberService {
 
     //유저 삭제(탈퇴)
     @Transactional
-    public void delete(Long memberId) {
+    public void delete(Long memberId,String password) {
         Member member = memberRepository.findById(memberId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"삭제할 데이터가 없습니다."));
+        //비밀번호 검증
+        validatePassword(password, member.getPassword());
         member.delete();
         memberRepository.save(member);
     }
