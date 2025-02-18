@@ -32,7 +32,6 @@ public class Member extends BaseEntity{
 
     //회원 탈퇴, 회원가입 시
     @Enumerated(EnumType.STRING)
-    @ColumnDefault("ACTIVATE")
     private MemberStatus status;
 
     public Member(String name, String email, String password) {
@@ -63,9 +62,6 @@ public class Member extends BaseEntity{
 
     public void delete() {
         this.status = MemberStatus.DELETED;
-        this.name = UUID.randomUUID().toString();
-        this.email = UUID.randomUUID().toString(); //아 맞다!!!
-        this.password = UUID.randomUUID().toString();
-        this.profileUrl = UUID.randomUUID().toString();
     }
+
 }
