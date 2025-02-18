@@ -13,4 +13,8 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Long
     List<Relationship> findBySenderIdAndStatusNot(Long senderId, RelationshipStatus status);
 
     List<Relationship> findByReceiverIdAndStatusNot(Long memberId, RelationshipStatus status);
+
+    List<Relationship> findByReceiverIdAndStatus(Long receiverId, RelationshipStatus status);
+
+    List<Relationship> findBySenderIdAndStatus(Long senderId, RelationshipStatus status);
 }

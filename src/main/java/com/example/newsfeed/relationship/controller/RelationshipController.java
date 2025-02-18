@@ -70,8 +70,8 @@ public class RelationshipController {
     public ResponseEntity<List<FollowResponseDto>> getMutualFollowers(
             @SessionAttribute(name = "token") Long memberId
     ) {
-
-        return null;
+        List<FollowResponseDto> mutual = relationshipService.getMutualFollowers(memberId);
+        return ResponseEntity.ok(mutual);
     }
 
     // 팔로우 취소
