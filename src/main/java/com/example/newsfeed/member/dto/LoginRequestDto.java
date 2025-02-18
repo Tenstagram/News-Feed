@@ -1,4 +1,4 @@
-package com.example.newsfeed.dto;
+package com.example.newsfeed.member.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -13,7 +13,6 @@ public class LoginRequestDto {
 
     @NotBlank(message = "비밀번호는 필수 입력값입니다.")
     private final String password;
-
 
     public LoginRequestDto(String email, String password) {
         this.email = email;

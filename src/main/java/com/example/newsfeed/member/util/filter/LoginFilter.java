@@ -1,4 +1,4 @@
-package com.example.newsfeed.filter;
+package com.example.newsfeed.member.util.filter;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,10 +31,11 @@ public class LoginFilter implements Filter {
 
         log.info("로그인 필터 로직 실행");
 
+        //JWT 토큰 디코딩
+
         if (!isWhiteList(requestURI)) {
 
             HttpSession session = httpRequest.getSession(false);
-
 
             if (session == null || session.getAttribute("token") == null) {
                 throw new RuntimeException("로그인 해주세요.");

@@ -1,10 +1,10 @@
-package com.example.newsfeed.controller;
+package com.example.newsfeed.member.controller;
 
-import com.example.newsfeed.dto.LoginRequestDto;
-import com.example.newsfeed.dto.LoginResponseDto;
-import com.example.newsfeed.dto.SignupRequestDto;
-import com.example.newsfeed.dto.SignupResponseDto;
-import com.example.newsfeed.service.MemberService;
+import com.example.newsfeed.member.dto.LoginRequestDto;
+import com.example.newsfeed.member.dto.LoginResponseDto;
+import com.example.newsfeed.member.dto.SignupRequestDto;
+import com.example.newsfeed.member.dto.SignupResponseDto;
+import com.example.newsfeed.member.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -30,23 +30,24 @@ public class AuthController {
         return new ResponseEntity<>(signupResponseDto, HttpStatus.CREATED);
     }
 
-
     //로그인
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(HttpServletRequest request,
-                                                  @Valid @RequestBody LoginRequestDto loginRequestDto) {
-        LoginResponseDto loginResponseDto = memberService.memberLogin(loginRequestDto.getEmail(),loginRequestDto.getPassword());
+                                                  @RequestBody LoginRequestDto dto) {
+        LoginResponseDto loginResponseDto = memberService.memberLogin(dto.getEmail(),dto.getPassword());
 
         HttpSession session = request.getSession(true);
-
         session.setAttribute("token",loginResponseDto.getId());
+
         return new ResponseEntity<>(loginResponseDto,HttpStatus.OK);
     }
 
     //로그아웃
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
+
         HttpSession session = request.getSession(false);
+
         if (session != null) {
             session.invalidate();
         }
