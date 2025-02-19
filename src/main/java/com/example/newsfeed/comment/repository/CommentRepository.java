@@ -1,6 +1,7 @@
 package com.example.newsfeed.comment.repository;
 
 import com.example.newsfeed.comment.entity.Comment;
+import com.example.newsfeed.post.entity.Post;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -41,6 +42,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             "ORDER BY COUNT(lc) DESC, c.updatedAt")
     List<Comment> findTop3ByPostIdOrderByLikeCountDesc(@Param("postId") Long postId);
 
+    Long countByPost(Post post); // 해당 게시물의 댓글 수를 세는 쿼리 추가했습니다.
 
 }
 

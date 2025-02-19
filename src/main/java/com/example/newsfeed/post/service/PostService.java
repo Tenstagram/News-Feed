@@ -1,5 +1,9 @@
 package com.example.newsfeed.post.service;
 
+import com.example.newsfeed.comment.repository.CommentRepository;
+import com.example.newsfeed.member.entity.Member;
+import com.example.newsfeed.member.repository.MemberRepository;
+import com.example.newsfeed.post.dto.request.PostPageRequestDto;
 import com.example.newsfeed.post.dto.request.PostStateChangeRequestDto;
 import com.example.newsfeed.post.dto.response.PostPageResponseDto;
 import com.example.newsfeed.post.dto.request.PostSaveRequestDto;
@@ -25,6 +29,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -35,18 +40,21 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository postRepository;
-    @Autowired
-    private final MediaUrlRepository mediaUrlRepository;
+    private final MemberRepository memberRepository;
+    private final CommentRepository commentRepository;
     private final MediaUrlService mediaUrlService;
     private final State STATE_DELETE = State.DELETE;
 
     @Transactional
-    public PostSaveResponseDto save(PostSaveRequestDto dto, List<MultipartFile> mediaUrl) {
+    public PostSaveResponseDto save(Long userId, PostSaveRequestDto dto, List<MultipartFile> mediaUrl) {
 
         String fileNameList = getFileName(mediaUrl);
         //       String fileNameList=fileName.toString();
 
-        Post post = new Post(dto.getTitle(), fileNameList, dto.getDescription(), dto.getState());
+        Member member = memberRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
+
+        Post post = new Post(member, dto.getTitle(), fileNameList, dto.getDescription(), dto.getState());
 
         Post savePost = postRepository.save(post);
 
@@ -59,7 +67,7 @@ public class PostService {
         }
 
         return new PostSaveResponseDto(savePost.getPostId(),
-                savePost.getName(),//getMember.getName()으로 나중에 수정
+                savePost.getMember().getName(),
                 savePost.getTitle(),
                 savePost.getMediaUrl(),
                 savePost.getDescription(),
@@ -71,15 +79,17 @@ public class PostService {
 
     @Transactional
     public List<PostResponseDto> findAll() {
+
         return postRepository.findAll().stream()
                 .map(post -> new PostResponseDto(
                         post.getPostId(),
                         post.getTitle(),
+                        post.getMember().getName(),
                         post.getMediaUrl(),
                         post.getDescription(),
                         post.getState(),
                         post.getLikeCount(),
-                        post.getCommentCount()))
+                        commentRepository.countByPost(post)))
                 .collect(Collectors.toList());
     }
 
@@ -94,11 +104,12 @@ public class PostService {
         return new PostResponseDto(
                 post.getPostId(),
                 post.getTitle(),
+                post.getMember().getName(),
                 post.getMediaUrl(),
                 post.getDescription(),
                 post.getState(),
                 post.getLikeCount(),
-                post.getCommentCount());
+                commentRepository.countByPost(post));
     }
 
     @Transactional
@@ -146,9 +157,23 @@ public class PostService {
     }
 
     @Transactional
-    public Page<PostPageResponseDto> findAllPage(int page, int size) {
+    public Page<PostPageResponseDto> findAllPage(int page, int size, int pageSort, PostPageRequestDto dto) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Post> pageS = postRepository.findAllByOrderByCreatedAtDesc(pageable);
+        Page<Post> pageS=null;
+        if (pageSort == 1) {//생성일자 기준 내림차순
+            pageS = postRepository.findAllByOrderByCreatedAtDesc(pageable);
+        }
+        if (pageSort == 2) {//수정일자 기준 최신순
+            pageS = postRepository.findAllByOrderByUpdatedAtDesc(pageable);
+        }
+        if (pageSort == 3) {//좋아요순으로 페이지 정렬
+            pageS = postRepository.findAllByOrderByLikeCountDesc(pageable);
+        }
+        if (pageSort == 4) {//기간별 페이지 정렬
+            LocalDateTime startDate = dto.getStartDate().atStartOfDay();
+            LocalDateTime endDate = dto.getEndDate().atStartOfDay();
+            pageS = postRepository.findByCreatedAtBetween(startDate, endDate, pageable);
+        }
 
         return pageS.map(post ->
                 new PostPageResponseDto(post.getPostId(),
@@ -156,8 +181,9 @@ public class PostService {
                         post.getMediaUrl(),
                         post.getDescription(),
                         post.getLikeCount(),
-                        post.getCommentCount()));
-        //                        commentRepository.countByPostId(post.getPostId()),
+                        commentRepository.countByPost(post),
+                        post.getCreatedAt(),
+                        post.getUpdatedAt()));
     }
 
     @Transactional
@@ -172,23 +198,6 @@ public class PostService {
         }
 
         return post.getState().getValue();
-
-    }
-
-    @Transactional
-    public void postLike(Long id) {//좋아요
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
-
-        post.plusLikeCount();
-    }
-
-    @Transactional
-    public void postLikeCancel(Long id) {//좋아요 취소
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
-
-        post.cancelLikeCount();
     }
 
     @Transactional

@@ -1,9 +1,14 @@
 package com.example.newsfeed.post.entity;
 
+import com.example.newsfeed.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -21,21 +26,23 @@ public class Post extends BaseEntity{
 
     private String description;
 
-    private String name;
+    @ManyToOne
+    @JoinColumn(name="member_id")
+    private Member member;
 
-//    @ManyToOne
-//    @JoinColumn(name="member_id")
-//    private Member member;
+    @OneToMany(mappedBy ="post")
+    private List<PostLike> postLike = new ArrayList<>();;
 
-    private int likeCount;
+    private long likeCount=0;
 
-    private int commentCount;
+    private long commentCount=0;
 
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
     private State state;
 
-    public Post(String title, String mediaUrl, String description, State state){
+    public Post(Member member, String title, String mediaUrl, String description, State state){
+        this.member=member;
         this.title=title;
         this.mediaUrl=mediaUrl;
         this.description=description;
@@ -53,12 +60,11 @@ public class Post extends BaseEntity{
        this.state=state;
    }
 
-    public void plusLikeCount(){
+   public void likeCount(){
         likeCount++;
-    }
+   }
 
-    public void cancelLikeCount(){
+   public void cancelLikeCount(){
         likeCount--;
-    }
-
+   }
 }

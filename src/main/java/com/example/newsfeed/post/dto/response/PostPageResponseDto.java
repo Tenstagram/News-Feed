@@ -2,6 +2,7 @@ package com.example.newsfeed.post.dto.response;
 
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -15,16 +16,22 @@ public class PostPageResponseDto {
 
     private final String mediaUrl;
 
-    private final int likeCount;
+    private final Long likeCount;
 
-    private final int commentCount;
+    private final Long commentCount;
 
-    public PostPageResponseDto( Long postId, String title, String description, String mediaUrl, int likeCount, int commentCount) {
+    private final LocalDateTime createdAt;
+
+    private final LocalDateTime updatedAt;
+
+    public PostPageResponseDto(Long postId, String title, String description, String mediaUrl, Long likeCount, Long commentCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.postId = postId;//후에 댓글 파라미터 추가
         this.title = title;
         this.description = description;
         this.mediaUrl = mediaUrl;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 }
