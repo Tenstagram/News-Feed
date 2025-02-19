@@ -2,6 +2,7 @@ package com.example.newsfeed.relationship.service;
 
 import com.example.newsfeed.member.entity.Member;
 import com.example.newsfeed.member.repository.MemberRepository;
+import com.example.newsfeed.relationship.dto.BlockResponseDto;
 import com.example.newsfeed.relationship.dto.FollowResponseDto;
 import com.example.newsfeed.relationship.dto.FriendAcceptResponseDto;
 import com.example.newsfeed.relationship.dto.FriendRequestResponseDto;
@@ -147,11 +148,43 @@ public class RelationshipService {
         relationshipRepository.delete(relationship);
     }
 
-    public Relationship getBlockedMembers() {
-        return null;
+    @Transactional
+    public BlockResponseDto block(Long senderId, Long receiverId) {
+        // 차단 하는 유저
+        Member sender = memberRepository.findById(senderId)
+                .orElseThrow(IllegalStateException::new);
+
+        // 차단 당하는 유저
+        Member receiver = memberRepository.findById(receiverId)
+                .orElseThrow(IllegalStateException::new);
+
+        // 차단 관계 생성
+        Relationship relationship = new Relationship(sender, receiver);
+        relationship.updateStatus(RelationshipStatus.BLOCKED);
+        relationshipRepository.save(relationship);
+
+        return BlockResponseDto.of(relationship);
     }
 
-    public Relationship block(Long receiverId) {
-        return null;
+    public List<BlockResponseDto> getBlockedMembers(Long memberId) {
+        // 내가 차단한 유저 목록 조회
+        return relationshipRepository.findBySenderIdAndStatus(memberId, RelationshipStatus.BLOCKED)
+                .stream()
+                .map(BlockResponseDto::of)
+                .toList();
+    }
+
+    @Transactional
+    public void unblock(Long senderId, Long receiverId) {
+        // 내가 차단한 관계 찾기
+        List<Relationship> blockList = relationshipRepository.findBySenderIdAndStatus(senderId, RelationshipStatus.BLOCKED);
+
+        // 차단 관계들 중 특정 유저에게 보낸 차단 관계 찾기
+        Relationship relationship = blockList.stream()
+                .filter(r -> r.getReceiver().getId().equals(receiverId))
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
+
+        relationshipRepository.delete(relationship);
     }
 }
