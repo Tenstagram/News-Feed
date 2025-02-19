@@ -2,6 +2,7 @@ package com.example.newsfeed.relationship.service;
 
 import com.example.newsfeed.member.entity.Member;
 import com.example.newsfeed.member.repository.MemberRepository;
+import com.example.newsfeed.relationship.dto.BlockResponseDto;
 import com.example.newsfeed.relationship.dto.FollowResponseDto;
 import com.example.newsfeed.relationship.dto.FriendAcceptResponseDto;
 import com.example.newsfeed.relationship.dto.FriendRequestResponseDto;
@@ -124,11 +125,66 @@ public class RelationshipService {
         return mutualFollowers;
     }
 
-    public Relationship getBlockedMembers() {
-        return null;
+    @Transactional
+    public void unfollow(Long memberId, Long targetId) {
+        // 내가 보내서 성립된 관계 & 상대방이 보내서 성립된 관계 조회
+        Relationship relationship = relationshipRepository.findBySenderIdAndReceiverId(memberId, targetId)
+                .orElse(relationshipRepository.findBySenderIdAndReceiverId(targetId, memberId)
+                        .orElseThrow(() -> new IllegalArgumentException("팔로우 관계가 존재하지 않습니다.")));
+
+        // 맞팔 상태인 경우
+        if (relationship.getStatus() == RelationshipStatus.ACCEPTED) {
+            if (relationship.getSender().getId().equals(memberId)) {
+                // 내가 보낸 요청이 ACCEPTED 상태인 경우 -> 언팔하면 관계 삭제
+                relationshipRepository.delete(relationship);
+            } else {
+                // 상대가 보낸 요청이 ACCEPTED 상태인 경우 -> 언팔하면 REQUESTED로 변경
+                relationship.updateStatus(RelationshipStatus.REQUESTED);
+            }
+            return;
+        }
+
+        // 이미 REQUESTED 상태라면 관계 삭제(나만 팔로우 하고 있는 경우)
+        relationshipRepository.delete(relationship);
     }
 
-    public Relationship block(Long receiverId) {
-        return null;
+    @Transactional
+    public BlockResponseDto block(Long senderId, Long receiverId) {
+        // 차단 하는 유저
+        Member sender = memberRepository.findById(senderId)
+                .orElseThrow(IllegalStateException::new);
+
+        // 차단 당하는 유저
+        Member receiver = memberRepository.findById(receiverId)
+                .orElseThrow(IllegalStateException::new);
+
+        // 차단 관계 생성
+        Relationship relationship = new Relationship(sender, receiver);
+        relationship.updateStatus(RelationshipStatus.BLOCKED);
+        relationshipRepository.save(relationship);
+
+        return BlockResponseDto.of(relationship);
+    }
+
+    public List<BlockResponseDto> getBlockedMembers(Long memberId) {
+        // 내가 차단한 유저 목록 조회
+        return relationshipRepository.findBySenderIdAndStatus(memberId, RelationshipStatus.BLOCKED)
+                .stream()
+                .map(BlockResponseDto::of)
+                .toList();
+    }
+
+    @Transactional
+    public void unblock(Long senderId, Long receiverId) {
+        // 내가 차단한 관계 찾기
+        List<Relationship> blockList = relationshipRepository.findBySenderIdAndStatus(senderId, RelationshipStatus.BLOCKED);
+
+        // 차단 관계들 중 특정 유저에게 보낸 차단 관계 찾기
+        Relationship relationship = blockList.stream()
+                .filter(r -> r.getReceiver().getId().equals(receiverId))
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
+
+        relationshipRepository.delete(relationship);
     }
 }

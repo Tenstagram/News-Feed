@@ -5,6 +5,7 @@ import com.example.newsfeed.relationship.entity.RelationshipStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RelationshipRepository extends JpaRepository<Relationship, Long> {
 
@@ -17,4 +18,6 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Long
     List<Relationship> findByReceiverIdAndStatus(Long receiverId, RelationshipStatus status);
 
     List<Relationship> findBySenderIdAndStatus(Long senderId, RelationshipStatus status);
+
+    Optional<Relationship> findBySenderIdAndReceiverId(Long memberId, Long targetId);
 }

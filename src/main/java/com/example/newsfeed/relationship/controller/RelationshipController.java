@@ -1,9 +1,9 @@
 package com.example.newsfeed.relationship.controller;
 
+import com.example.newsfeed.relationship.dto.BlockResponseDto;
 import com.example.newsfeed.relationship.dto.FollowResponseDto;
 import com.example.newsfeed.relationship.dto.FriendAcceptResponseDto;
 import com.example.newsfeed.relationship.dto.FriendRequestResponseDto;
-import com.example.newsfeed.relationship.entity.Relationship;
 import com.example.newsfeed.relationship.service.RelationshipService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -75,37 +75,48 @@ public class RelationshipController {
     }
 
     // 팔로우 취소
-    @DeleteMapping("/follows/{relationshipId}")
+    @DeleteMapping("/follows/{targetId}")
     public ResponseEntity<Void> unfollow(
-            @PathVariable Long relationshipId
+            @SessionAttribute(name = "token") Long memberId,
+            @PathVariable Long targetId
     ) {
-
-        return null;
+        relationshipService.unfollow(memberId, targetId);
+        return ResponseEntity.ok().build();
     }
 
     // 특정 유저 차단
     @PostMapping("/blocks/{receiverId}")
-    public ResponseEntity<Relationship> block(
+    public ResponseEntity<BlockResponseDto> block(
+            @SessionAttribute(name = "token") Long memberId,
             @PathVariable Long receiverId
     ) {
-
-        return null;
+        BlockResponseDto response = relationshipService.block(memberId, receiverId);
+        return ResponseEntity.ok(response);
     }
 
     // 차단 목록 전체 조회
     @GetMapping("/blocks")
-    public ResponseEntity<Relationship> getBlockedMembers() {
+    public ResponseEntity<List<BlockResponseDto>> getBlockedMembers(
+            @SessionAttribute(name = "token") Long memberId
+    ) {
+        List<BlockResponseDto> response = relationshipService.getBlockedMembers(memberId);
 
-        return null;
+        // 차단된 사용자가 없을때
+        if (response.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(response);
     }
 
     // 특정 유저 차단 해제
     @DeleteMapping("/blocks/{receiverId}")
     public ResponseEntity<Void> unblock(
+            @SessionAttribute(name = "token") Long memberId,
             @PathVariable Long receiverId
     ) {
-
-        return null;
+        relationshipService.unblock(memberId, receiverId);
+        return ResponseEntity.ok().build();
     }
 
 }
