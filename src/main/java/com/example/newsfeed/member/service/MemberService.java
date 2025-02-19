@@ -7,6 +7,7 @@ import com.example.newsfeed.member.dto.SignupResponseDto;
 import com.example.newsfeed.member.entity.Member;
 import com.example.newsfeed.member.entity.MemberStatus;
 import com.example.newsfeed.member.repository.MemberRepository;
+import com.example.newsfeed.member.util.filter.JwtUtil;
 import com.example.newsfeed.util.config.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder encoder;
 
+
     //회원가입 이름 이메일 비밀번호
     @Transactional
     public SignupResponseDto signUp(SignupMemberCommand command) {
@@ -38,9 +40,15 @@ public class MemberService {
     //로그인
     @Transactional
     public LoginResponseDto memberLogin(String email, String password) {
-        Member member = memberRepository.findByEmail(email).orElseThrow(()->new ResponseStatusException(HttpStatus.UNAUTHORIZED,"존재하지 않는 이메일 정보입니다."));
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.UNAUTHORIZED,"존재하지 않는 이메일 정보입니다."));
         validatePassword(password, member.getPassword());
-        return new LoginResponseDto(member.getId(),member.getName(), member.getEmail());
+
+        //JWT 토큰 생성 추가
+        String token = JwtUtil.generateToken(email);
+
+        //JWT 토큰을 응답에 포함
+        return new LoginResponseDto(member.getId(),member.getName(), member.getEmail(),token);
     }
 
     //유저 전체 조회

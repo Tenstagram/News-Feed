@@ -24,7 +24,7 @@ public class CommentController {
     @PostMapping("/posts/{postId}")
     public ResponseEntity<CommentResponseDto> addComment(@PathVariable Long postId,
                                                          @RequestBody CommentAddRequestDto dto,
-                                                         @SessionAttribute(name = "token") Long memberId) {
+                                                         @SessionAttribute(name = "memberId", required = false) Long memberId) {
 
         // HttpSession session 객체 활용 방식 말고 @SessionAttribute 어노테이션으로도 가능
         // 주의: 어노테이션으로 할 때, memberId 가 null 이면, AuthenticationException 까지 안가고
@@ -60,7 +60,7 @@ public class CommentController {
     // => 단, 로그인 하면 세션에 따라 추가 로직 가능 (차단 필터링 등)
     @GetMapping("/post/{postId}")
     public ResponseEntity<CommentListResponseDto> getComment(@PathVariable Long postId
-            , @SessionAttribute(name = "token", required = false) Long memberId) {
+            , @SessionAttribute(name = "memberId", required = false) Long memberId) {
 
         // CommentListResponseDto 라는 리스트 Dto 를 만들어서 서비스 계층에서 리스트를 통째로 하나의 객체로 취급
         // 서로 다른 2종류의 List<dto> 를 하나로 합쳐야 하기에 이런 방법 채택
@@ -72,7 +72,7 @@ public class CommentController {
     @PatchMapping("/{commentId}")
     public ResponseEntity<CommentResponseDto> updateComment(@PathVariable Long commentId,
                                             @RequestBody CommentUpdateRequestDto request,
-                                            @SessionAttribute(name = "token") Long memberId) {
+                                            @SessionAttribute(name = "memberId") Long memberId) {
 
         CommentResponseDto response = commentService.updateComment(commentId, request, memberId);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -81,7 +81,7 @@ public class CommentController {
     // 특정 댓글 삭제
     @DeleteMapping("/{commentId}")
     public ResponseEntity<String> deleteComment(@PathVariable Long commentId,
-                                                @SessionAttribute(name = "token") Long memberId) {
+                                                @SessionAttribute(name = "memberId") Long memberId) {
         commentService.deleteComment(commentId, memberId);
         return new ResponseEntity<>("댓글이 삭제 되었습니다.", HttpStatus.OK);
     }
@@ -89,7 +89,7 @@ public class CommentController {
     // 댓글 좋아요 누르기
     @PostMapping("/{commentId}/like")
     public ResponseEntity<String> likeComment(@PathVariable Long commentId,
-                                              @SessionAttribute(name = "token") Long memberId) {
+                                              @SessionAttribute(name = "memberId") Long memberId) {
         commentService.likeComment(commentId, memberId);
         return new ResponseEntity<>("좋아요를 눌렀습니다.", HttpStatus.OK);
     }
@@ -97,7 +97,7 @@ public class CommentController {
     // 댓글 좋아요 취소
     @PostMapping("/{commentId}/unlike")
     public ResponseEntity<String> unlikeComment(@PathVariable Long commentId,
-                                                @SessionAttribute(name = "token") Long memberId){
+                                                @SessionAttribute(name = "memberId") Long memberId){
         commentService.unlikeComment(commentId, memberId);
         return new ResponseEntity<>("좋아요가 취소되었습니다.", HttpStatus.OK);
     }

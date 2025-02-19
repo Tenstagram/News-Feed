@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -35,14 +37,13 @@ public class AuthController {
 
     //로그인
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(HttpServletRequest request,
-                                                  @RequestBody LoginRequestDto dto) {
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto dto) {
         LoginResponseDto loginResponseDto = memberService.memberLogin(dto.getEmail(),dto.getPassword());
 
-        HttpSession session = request.getSession(true);
-        session.setAttribute("token",loginResponseDto.getId());
-
-        return new ResponseEntity<>(loginResponseDto,HttpStatus.OK);
+        //JWT 토큰을 Authrization 헤더에 추가
+        return ResponseEntity.ok()
+                .header("Authorization","Bearer" + loginResponseDto.getToken())
+                .body(loginResponseDto);
     }
 
     //로그아웃
