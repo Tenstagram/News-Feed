@@ -53,8 +53,7 @@ public class JwtFilter implements Filter {
         chain.doFilter(request, response);
     }
 
-    // 화이트리스트 URI 확인
-    private boolean isWhiteListed(String requestURI) {
+    private boolean isWhiteList(String requestURI) {
         return PatternMatchUtils.simpleMatch(WHITE_LIST, requestURI);
     }
 

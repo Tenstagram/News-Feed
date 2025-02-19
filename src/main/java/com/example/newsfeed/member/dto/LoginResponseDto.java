@@ -10,7 +10,8 @@ public class LoginResponseDto {
     private String name;
     private String token;
 
-    public LoginResponseDto(Long id, String email, String name, String token) {
+
+    public LoginResponseDto(Long id, String email, String name,String token) {
         this.id = id;
         this.email = email;
         this.name = name;
