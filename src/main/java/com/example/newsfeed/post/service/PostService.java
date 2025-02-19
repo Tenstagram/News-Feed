@@ -4,21 +4,20 @@ import com.example.newsfeed.comment.repository.CommentRepository;
 import com.example.newsfeed.member.entity.Member;
 import com.example.newsfeed.member.repository.MemberRepository;
 import com.example.newsfeed.post.dto.request.PostPageRequestDto;
-import com.example.newsfeed.post.dto.request.PostStateChangeRequestDto;
-import com.example.newsfeed.post.dto.response.PostPageResponseDto;
 import com.example.newsfeed.post.dto.request.PostSaveRequestDto;
+import com.example.newsfeed.post.dto.request.PostStateChangeRequestDto;
+import com.example.newsfeed.post.dto.request.PostUpdateRequestDto;
+import com.example.newsfeed.post.dto.response.PostPageResponseDto;
 import com.example.newsfeed.post.dto.response.PostResponseDto;
 import com.example.newsfeed.post.dto.response.PostSaveResponseDto;
-import com.example.newsfeed.post.dto.request.PostUpdateRequestDto;
 import com.example.newsfeed.post.dto.response.PostUpdateResponseDto;
-import com.example.newsfeed.post.entity.MediaUrl;
 import com.example.newsfeed.post.entity.Post;
 import com.example.newsfeed.post.entity.State;
-import com.example.newsfeed.post.repository.MediaUrlRepository;
 import com.example.newsfeed.post.repository.PostRepository;
+import com.example.newsfeed.relationship.entity.RelationshipStatus;
+import com.example.newsfeed.relationship.repository.RelationshipRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,13 +25,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +36,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final CommentRepository commentRepository;
+    private final RelationshipRepository relationshipRepository;
     private final MediaUrlService mediaUrlService;
     private final State STATE_DELETE = State.DELETE;
 
@@ -90,6 +85,21 @@ public class PostService {
                         post.getLikeCount(),
                         commentRepository.countByPost(post)))
                 .collect(Collectors.toList());
+    }
+
+    public List<PostResponseDto> findAllExcludingBlockedUsers(Long memberId) {
+        List<Long> blockedMemberIds = relationshipRepository.findBySenderIdAndStatus(memberId, RelationshipStatus.BLOCKED)
+                .stream().map(r -> r.getReceiver().getId())
+                .toList();
+
+        // 차단한 사용자가 없을 경우 모든 게시물 반환
+        List<Post> posts = blockedMemberIds.isEmpty()
+                ? postRepository.findAll()
+                : postRepository.findAllExcludingBlockedUsers(blockedMemberIds);
+
+        return posts.stream()
+                .map(PostResponseDto::of)
+                .toList();
     }
 
     @Transactional

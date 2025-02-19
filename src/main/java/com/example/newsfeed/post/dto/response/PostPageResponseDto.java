@@ -3,7 +3,6 @@ package com.example.newsfeed.post.dto.response;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 public class PostPageResponseDto {
