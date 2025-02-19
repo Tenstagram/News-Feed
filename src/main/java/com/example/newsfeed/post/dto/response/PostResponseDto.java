@@ -1,9 +1,8 @@
 package com.example.newsfeed.post.dto.response;
 
+import com.example.newsfeed.post.entity.Post;
 import com.example.newsfeed.post.entity.State;
 import lombok.Getter;
-
-import java.time.LocalDateTime;
 
 @Getter
 public class PostResponseDto {
@@ -32,5 +31,18 @@ public class PostResponseDto {
         this.state = state;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
+    }
+
+    public static PostResponseDto of(Post post) {
+        return new PostResponseDto(
+                post.getPostId(),
+                post.getTitle(),
+                post.getMember().getName(),
+                post.getMediaUrl(),
+                post.getDescription(),
+                post.getState(),
+                post.getLikeCount(),
+                post.getCommentCount()
+        );
     }
 }

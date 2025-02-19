@@ -1,5 +1,6 @@
 package com.example.newsfeed.relationship.controller;
 
+import com.example.newsfeed.member.service.MemberService;
 import com.example.newsfeed.relationship.dto.BlockResponseDto;
 import com.example.newsfeed.relationship.dto.FollowResponseDto;
 import com.example.newsfeed.relationship.dto.FriendAcceptResponseDto;
@@ -16,13 +17,15 @@ import java.util.List;
 public class RelationshipController {
 
     private final RelationshipService relationshipService;
+    private final MemberService memberService;
 
     // 친구 추가 요청
     @PostMapping("/follows/{receiverId}/request")
     public ResponseEntity<FriendRequestResponseDto> sendFriendRequest(
-            @SessionAttribute(name = "token") Long senderId,
+            @RequestHeader("Authorization") String token,
             @PathVariable Long receiverId
     ) {
+        Long senderId = getMemberIdByToken(token);
         FriendRequestResponseDto response = relationshipService.sendFriendRequest(senderId, receiverId);
         return ResponseEntity.ok(response);
     }
@@ -30,9 +33,10 @@ public class RelationshipController {
     // 친구 추가 요청 수락
     @PostMapping("/follows/{relationshipId}/accept")
     public ResponseEntity<FriendAcceptResponseDto> acceptFriendRequest(
-            @SessionAttribute(name = "token") Long receiverId,
+            @RequestHeader("Authorization") String token,
             @PathVariable Long relationshipId
     ) {
+        Long receiverId = getMemberIdByToken(token);
         FriendAcceptResponseDto response = relationshipService.acceptFriendRequest(receiverId, relationshipId);
         return ResponseEntity.ok(response);
     }
@@ -40,9 +44,10 @@ public class RelationshipController {
     // 친구 추가 요청 거절
     @DeleteMapping("/follows/{relationshipId}/reject")
     public ResponseEntity<Void> rejectFriendRequest(
-            @SessionAttribute(name = "token") Long receiverId,
+            @RequestHeader("Authorization") String token,
             @PathVariable Long relationshipId
     ) {
+        Long receiverId = getMemberIdByToken(token);
         relationshipService.rejectFriendRequest(receiverId, relationshipId);
         return ResponseEntity.ok().build();
     }
@@ -50,8 +55,9 @@ public class RelationshipController {
     // 팔로우 목록 전체 조회
     @GetMapping("/follows/followers")
     public ResponseEntity<List<FollowResponseDto>> getFollowers(
-            @SessionAttribute(name = "token") Long memberId
+            @RequestHeader("Authorization") String token
     ) {
+        Long memberId = getMemberIdByToken(token);
         List<FollowResponseDto> followers = relationshipService.getFollowers(memberId);
         return ResponseEntity.ok(followers);
     }
@@ -59,8 +65,9 @@ public class RelationshipController {
     // 팔로잉 목록 전체 조회
     @GetMapping("/follows/following")
     public ResponseEntity<List<FollowResponseDto>> getFollowing(
-            @SessionAttribute(name = "token") Long memberId
+            @RequestHeader("Authorization") String token
     ) {
+        Long memberId = getMemberIdByToken(token);
         List<FollowResponseDto> following = relationshipService.getFollowing(memberId);
         return ResponseEntity.ok(following);
     }
@@ -68,8 +75,9 @@ public class RelationshipController {
     // 맞팔한 목록 전체 조회
     @GetMapping("/follows/mutual")
     public ResponseEntity<List<FollowResponseDto>> getMutualFollowers(
-            @SessionAttribute(name = "token") Long memberId
+            @RequestHeader("Authorization") String token
     ) {
+        Long memberId = getMemberIdByToken(token);
         List<FollowResponseDto> mutual = relationshipService.getMutualFollowers(memberId);
         return ResponseEntity.ok(mutual);
     }
@@ -77,9 +85,10 @@ public class RelationshipController {
     // 팔로우 취소
     @DeleteMapping("/follows/{targetId}")
     public ResponseEntity<Void> unfollow(
-            @SessionAttribute(name = "token") Long memberId,
+            @RequestHeader("Authorization") String token,
             @PathVariable Long targetId
     ) {
+        Long memberId = getMemberIdByToken(token);
         relationshipService.unfollow(memberId, targetId);
         return ResponseEntity.ok().build();
     }
@@ -87,9 +96,10 @@ public class RelationshipController {
     // 특정 유저 차단
     @PostMapping("/blocks/{receiverId}")
     public ResponseEntity<BlockResponseDto> block(
-            @SessionAttribute(name = "token") Long memberId,
+            @RequestHeader("Authorization") String token,
             @PathVariable Long receiverId
     ) {
+        Long memberId = getMemberIdByToken(token);
         BlockResponseDto response = relationshipService.block(memberId, receiverId);
         return ResponseEntity.ok(response);
     }
@@ -97,8 +107,9 @@ public class RelationshipController {
     // 차단 목록 전체 조회
     @GetMapping("/blocks")
     public ResponseEntity<List<BlockResponseDto>> getBlockedMembers(
-            @SessionAttribute(name = "token") Long memberId
+            @RequestHeader("Authorization") String token
     ) {
+        Long memberId = getMemberIdByToken(token);
         List<BlockResponseDto> response = relationshipService.getBlockedMembers(memberId);
 
         // 차단된 사용자가 없을때
@@ -112,11 +123,17 @@ public class RelationshipController {
     // 특정 유저 차단 해제
     @DeleteMapping("/blocks/{receiverId}")
     public ResponseEntity<Void> unblock(
-            @SessionAttribute(name = "token") Long memberId,
+            @RequestHeader("Authorization") String token,
             @PathVariable Long receiverId
     ) {
+        Long memberId = getMemberIdByToken(token);
         relationshipService.unblock(memberId, receiverId);
         return ResponseEntity.ok().build();
+    }
+
+    private Long getMemberIdByToken(String token) {
+        String jwt = token.replace("Bearer","");
+        return memberService.getMemberIdFromToken(jwt);
     }
 
 }

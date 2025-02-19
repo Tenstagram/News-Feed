@@ -5,6 +5,7 @@ import com.example.newsfeed.comment.dto.CommentListResponseDto;
 import com.example.newsfeed.comment.dto.CommentResponseDto;
 import com.example.newsfeed.comment.dto.CommentUpdateRequestDto;
 import com.example.newsfeed.comment.service.CommentService;
+import com.example.newsfeed.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,18 +14,22 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/comment")
+@RequestMapping("/comments")
 @RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
+    private final MemberService memberService;
 
 
     // 댓글 작성 => 게시글 id에 작성
     @PostMapping("/posts/{postId}")
     public ResponseEntity<CommentResponseDto> addComment(@PathVariable Long postId,
                                                          @RequestBody CommentAddRequestDto dto,
-                                                         @SessionAttribute(name = "memberId", required = false) Long memberId) {
+                                                         @RequestHeader("Authorization") String token) {
+        //Bear 제거 후 검증
+        String jwt = token.replace("Bearer", "");
+        Long memberId = memberService.getMemberIdFromToken(jwt);
 
         // HttpSession session 객체 활용 방식 말고 @SessionAttribute 어노테이션으로도 가능
         // 주의: 어노테이션으로 할 때, memberId 가 null 이면, AuthenticationException 까지 안가고
@@ -58,9 +63,8 @@ public class CommentController {
     // 특정 게시글의 댓글 조회 (베스트 댓글 + 일반 댓글)
     // required = false 할 경우, 세션이 없어도 조회가능
     // => 단, 로그인 하면 세션에 따라 추가 로직 가능 (차단 필터링 등)
-    @GetMapping("/post/{postId}")
-    public ResponseEntity<CommentListResponseDto> getComment(@PathVariable Long postId
-            , @SessionAttribute(name = "memberId", required = false) Long memberId) {
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<CommentListResponseDto> getComment(@PathVariable Long postId) {
 
         // CommentListResponseDto 라는 리스트 Dto 를 만들어서 서비스 계층에서 리스트를 통째로 하나의 객체로 취급
         // 서로 다른 2종류의 List<dto> 를 하나로 합쳐야 하기에 이런 방법 채택
@@ -71,8 +75,11 @@ public class CommentController {
     // 특정 댓글 수정
     @PatchMapping("/{commentId}")
     public ResponseEntity<CommentResponseDto> updateComment(@PathVariable Long commentId,
-                                            @RequestBody CommentUpdateRequestDto request,
-                                            @SessionAttribute(name = "memberId", required = false) Long memberId) {
+                                                            @RequestBody CommentUpdateRequestDto request,
+                                                            @RequestHeader("Authorization") String token) {
+        //Bear 제거 후 검증
+        String jwt = token.replace("Bearer", "");
+        Long memberId = memberService.getMemberIdFromToken(jwt);
 
         CommentResponseDto response = commentService.updateComment(commentId, request, memberId);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -81,7 +88,12 @@ public class CommentController {
     // 특정 댓글 삭제
     @DeleteMapping("/{commentId}")
     public ResponseEntity<String> deleteComment(@PathVariable Long commentId,
-                                                @SessionAttribute(name = "memberId", required = false) Long memberId) {
+                                                @RequestHeader("Authorization") String token) {
+        //Bear 제거 후 검증
+        String jwt = token.replace("Bearer", "");
+        Long memberId = memberService.getMemberIdFromToken(jwt);
+
+
         commentService.deleteComment(commentId, memberId);
         return new ResponseEntity<>("댓글이 삭제 되었습니다.", HttpStatus.OK);
     }
@@ -89,7 +101,11 @@ public class CommentController {
     // 댓글 좋아요 누르기
     @PostMapping("/{commentId}/like")
     public ResponseEntity<String> likeComment(@PathVariable Long commentId,
-                                              @SessionAttribute(name = "memberId", required = false) Long memberId) {
+                                              @RequestHeader("Authorization") String token) {
+        //Bear 제거 후 검증
+        String jwt = token.replace("Bearer","");
+        Long memberId = memberService.getMemberIdFromToken(jwt);
+
         commentService.likeComment(commentId, memberId);
         return new ResponseEntity<>("좋아요를 눌렀습니다.", HttpStatus.OK);
     }
@@ -97,11 +113,14 @@ public class CommentController {
     // 댓글 좋아요 취소
     @PostMapping("/{commentId}/unlike")
     public ResponseEntity<String> unlikeComment(@PathVariable Long commentId,
-                                                @SessionAttribute(name = "memberId", required = false) Long memberId){
+                                                @RequestHeader("Authorization") String token) {
+        //Bear 제거 후 검증
+        String jwt = token.replace("Bearer","");
+        Long memberId = memberService.getMemberIdFromToken(jwt);
+
         commentService.unlikeComment(commentId, memberId);
         return new ResponseEntity<>("좋아요가 취소되었습니다.", HttpStatus.OK);
     }
-
 
 
 }

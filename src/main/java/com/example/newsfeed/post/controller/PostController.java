@@ -55,6 +55,18 @@ public class PostController {
         return ResponseEntity.ok(postService.findAll());
     }
 
+    // 차단된 사용자 제외 게시글 조회
+    @GetMapping("/filtered")
+    public ResponseEntity<List<PostResponseDto>> findAllExcludingBlockedUsers(
+            @RequestHeader("Authorization") String token
+    ) {
+        String jwt = token.replace("Bearer","");
+        Long memberId = memberService.getMemberIdFromToken(jwt);
+        List<PostResponseDto> responseDtos = postService.findAllExcludingBlockedUsers(memberId);
+
+        return ResponseEntity.ok(responseDtos);
+    }
+
     //게시물 단건 조회
     @GetMapping("/{postId}")
     public ResponseEntity<PostResponseDto> findById(

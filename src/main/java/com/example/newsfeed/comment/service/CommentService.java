@@ -58,13 +58,31 @@ public class CommentService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("게시글을 찾을 수 없습니다."));
 
-        // 댓글 객체 생성
-        // Setter 대신 builder 사용 => DB에 저장될 'comment 객체'를 빌드함
-        Comment comment = Comment.builder()
-                .member(member)
-                .post(post)
-                .content(dto.getContent())
-                .build();
+        // 부모 댓글 조회 및 검증
+        Comment comment;
+
+        if (dto.getParentCommentId() != null) {
+            Comment parentComment = commentRepository.findById(dto.getParentCommentId())
+                    .orElseThrow(() -> new NotFoundException("댓글을 찾을 수 없습니다."));
+
+            // 부모 댓글이 있으면 대댓글 생성
+            // 댓글 객체 생성
+            // Setter 대신 builder 사용 => DB에 저장될 'comment 객체'를 빌드함
+            comment = Comment.builder()
+                    .member(member)
+                    .post(post)
+                    .content(dto.getContent())
+                    .parentCommentId(parentComment)
+                    .build();
+
+        } else { // 부모 댓글 없으면 부모 댓글 생성
+            comment = Comment.builder()
+                    .member(member)
+                    .post(post)
+                    .content(dto.getContent())
+                    .build();
+        }
+
 
         // DB에 댓글 객체 저장
         commentRepository.save(comment);
@@ -158,7 +176,7 @@ public class CommentService {
                 .orElseThrow(() -> new AuthenticationException("2"));
 
         // 중복 좋아요 체크
-        if (likeCommentRepository.existsByComment_CommentIdAndMember_id(commentId, memberId)) {
+        if (likeCommentRepository.existsByComment_commentIdAndMember_id(commentId, memberId)) {
             throw new RepetitionLikeException("이미 좋아요를 눌렀습니다.");
         }
 
@@ -187,7 +205,7 @@ public class CommentService {
                 .orElseThrow(() -> new AuthenticationException("2"));
 
         // 좋아요 여부 검증
-        LikeComment likeComment = likeCommentRepository.findByComment_CommentIdAndMember_id(commentId, memberId)
+        LikeComment likeComment = likeCommentRepository.findByComment_commentIdAndMember_id(commentId, memberId)
                 .orElseThrow(() -> new RepetitionLikeException("좋아요 기록이 없습니다."));
 
         // 좋아요 기록 삭제

@@ -1,5 +1,7 @@
 package com.example.newsfeed.comment.exception;
 
+import com.example.newsfeed.relationship.exception.ErrorResponse;
+import com.example.newsfeed.relationship.exception.custom.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -46,12 +48,53 @@ public class CommentExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
     }
 
+    // 이미 차단된 사용자 관련 예외
+    @ExceptionHandler(BlockedUserException.class)
+    public ResponseEntity<ErrorResponse> BlockedUserException(BlockedUserException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse(HttpStatus.FORBIDDEN.value(), e.getMessage()));
+    }
 
+    // 관계를 찾을 수 없는 경우 예외
+    @ExceptionHandler(FollowNotFoundException.class)
+    public ResponseEntity<ErrorResponse> FollowNotFoundException(FollowNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()));
+    }
 
+    // 친구 요청이 이미 존재하는 경우 예외
+    @ExceptionHandler(FriendRequestAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> FriendRequestAlreadyExistsException(FriendRequestAlreadyExistsException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(HttpStatus.CONFLICT.value(), e.getMessage()));
+    }
 
+    // 이미 친구가 된 경우 예외
+    @ExceptionHandler(FriendRequestAlreadyProcessedException.class)
+    public ResponseEntity<ErrorResponse> FriendRequestAlreadyProcessedException(FriendRequestAlreadyProcessedException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
+    }
 
+    // 친구 요청 수락 권한 예외
+    @ExceptionHandler(FriendRequestAuthorizationException.class)
+    public ResponseEntity<ErrorResponse> FriendRequestAuthorizationException(FriendRequestAuthorizationException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse(HttpStatus.FORBIDDEN.value(), e.getMessage()));
+    }
 
+    // 친구 요청 거절 권한 예외
+    @ExceptionHandler(FriendRequestRejectionAuthorizationException.class)
+    public ResponseEntity<ErrorResponse> FriendRequestRejectionAuthorizationException(FriendRequestRejectionAuthorizationException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse(HttpStatus.FORBIDDEN.value(), e.getMessage()));
+    }
 
-
+    // 자기 자신에게 친구 요청 시 예외
+    @ExceptionHandler(SelfFriendRequestException.class)
+    public ResponseEntity<ErrorResponse> SelfFriendRequestException(SelfFriendRequestException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
+    }
 
 }

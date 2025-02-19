@@ -8,6 +8,7 @@ import com.example.newsfeed.relationship.dto.FriendAcceptResponseDto;
 import com.example.newsfeed.relationship.dto.FriendRequestResponseDto;
 import com.example.newsfeed.relationship.entity.Relationship;
 import com.example.newsfeed.relationship.entity.RelationshipStatus;
+import com.example.newsfeed.relationship.exception.custom.*;
 import com.example.newsfeed.relationship.repository.RelationshipRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,9 +27,15 @@ public class RelationshipService {
 
     @Transactional
     public FriendRequestResponseDto sendFriendRequest(Long senderId, Long receiverId) {
+        // 자기 자신에게 요청 보낼 경우
+        if (senderId.equals(receiverId)) {
+            throw new SelfFriendRequestException();
+        }
+
+        // 이미 나 혹은 상대방이 요청을 보냈을 경우
         if (relationshipRepository.existsBySenderIdAndReceiverId(senderId, receiverId) ||
                 relationshipRepository.existsBySenderIdAndReceiverId(receiverId, senderId)) {
-            throw new IllegalStateException("이미 친구 요청을 보냈거나 상대방이 요청을 보냈습니다.");
+            throw new FriendRequestAlreadyExistsException();
         }
 
         Member sender = memberRepository.findById(senderId)
@@ -47,20 +54,20 @@ public class RelationshipService {
     public FriendAcceptResponseDto acceptFriendRequest(Long receiverId, Long relationshipId) {
         // 친구 요청이 존재하는지 확인
         Relationship relationship = relationshipRepository.findById(relationshipId)
-                .orElseThrow(IllegalStateException::new);
+                .orElseThrow(FollowNotFoundException::new);
 
         //  요청을 받은 사용자인지 검증
         if (!relationship.getReceiver().getId().equals(receiverId)) {
-            throw new IllegalArgumentException("해당 친구 요청을 수락할 권한이 없습니다.");
+            throw new FriendRequestAuthorizationException();
         }
 
         // 해당 요청이 REQUESTED 상태인지 확인
         if (relationship.getStatus() == RelationshipStatus.ACCEPTED) {
-            throw new IllegalStateException("이미 처리된 친구 요청입니다.");
+            throw new FriendRequestAlreadyProcessedException();
         }
 
         if (relationship.getStatus() == RelationshipStatus.BLOCKED) {
-            throw new IllegalStateException("차단된 사용자입니다.");
+            throw new BlockedUserException();
         }
 
         // 요청 수락, 상태 변경
@@ -77,7 +84,7 @@ public class RelationshipService {
 
         //  요청을 받은 사용자인지 검증
         if (!relationship.getReceiver().getId().equals(receiverId)) {
-            throw new IllegalArgumentException("해당 친구 요청을 거절할 권한이 없습니다.");
+            throw new FriendRequestRejectionAuthorizationException();
         }
 
         // 거절 시 DB에서 완전히 삭제
@@ -130,7 +137,7 @@ public class RelationshipService {
         // 내가 보내서 성립된 관계 & 상대방이 보내서 성립된 관계 조회
         Relationship relationship = relationshipRepository.findBySenderIdAndReceiverId(memberId, targetId)
                 .orElse(relationshipRepository.findBySenderIdAndReceiverId(targetId, memberId)
-                        .orElseThrow(() -> new IllegalArgumentException("팔로우 관계가 존재하지 않습니다.")));
+                        .orElseThrow(FollowNotFoundException::new));
 
         // 맞팔 상태인 경우
         if (relationship.getStatus() == RelationshipStatus.ACCEPTED) {
@@ -158,12 +165,24 @@ public class RelationshipService {
         Member receiver = memberRepository.findById(receiverId)
                 .orElseThrow(IllegalStateException::new);
 
-        // 차단 관계 생성
-        Relationship relationship = new Relationship(sender, receiver);
-        relationship.updateStatus(RelationshipStatus.BLOCKED);
-        relationshipRepository.save(relationship);
+        Relationship relationship = relationshipRepository.findBySenderIdAndReceiverId(senderId, receiverId)
+                .orElse(relationshipRepository.findBySenderIdAndReceiverId(senderId, receiverId)
+                        .orElse(null));
+        if (relationship != null) {
+            if (relationship.getStatus() == RelationshipStatus.ACCEPTED ||
+                    relationship.getStatus() == RelationshipStatus.REQUESTED) {
+                // 이미 관계가 존재한다면 상태 변경
+                relationship.updateStatus(RelationshipStatus.BLOCKED);
+                return BlockResponseDto.of(relationship);
+            }
+        }
 
-        return BlockResponseDto.of(relationship);
+        // 차단 관계 생성
+        Relationship blockedRelationship = new Relationship(sender, receiver);
+        relationship.updateStatus(RelationshipStatus.BLOCKED);
+        relationshipRepository.save(blockedRelationship);
+
+        return BlockResponseDto.of(blockedRelationship);
     }
 
     public List<BlockResponseDto> getBlockedMembers(Long memberId) {
