@@ -63,6 +63,7 @@ public class MemberController {
         Long memberId = memberService.getMemberIdFromToken(jwt);
 
         memberService.updateName(memberId, dto.getNewName());
+
         return ResponseEntity.ok().build();
     }
 

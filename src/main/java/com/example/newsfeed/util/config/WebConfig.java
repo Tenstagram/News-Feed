@@ -1,4 +1,4 @@
-package com.example.newsfeed.member.util.config;
+package com.example.newsfeed.util.config;
 
 
 import com.example.newsfeed.member.util.filter.LoginFilter;
