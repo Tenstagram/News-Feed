@@ -42,7 +42,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             "ORDER BY COUNT(lc) DESC, c.updatedAt")
     List<Comment> findTop3ByPostIdOrderByLikeCountDesc(@Param("postId") Long postId);
 
-    Long countByPost(Post post);//해당 게시물의 댓글 수를 세는 쿼리 추가했습니다.
+    Long countByPost(Post post); // 해당 게시물의 댓글 수를 세는 쿼리 추가했습니다.
 
 }
 

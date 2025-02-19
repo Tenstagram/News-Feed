@@ -72,7 +72,7 @@ public class CommentController {
     @PatchMapping("/{commentId}")
     public ResponseEntity<CommentResponseDto> updateComment(@PathVariable Long commentId,
                                             @RequestBody CommentUpdateRequestDto request,
-                                            @SessionAttribute(name = "memberId") Long memberId) {
+                                            @SessionAttribute(name = "memberId", required = false) Long memberId) {
 
         CommentResponseDto response = commentService.updateComment(commentId, request, memberId);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -81,7 +81,7 @@ public class CommentController {
     // 특정 댓글 삭제
     @DeleteMapping("/{commentId}")
     public ResponseEntity<String> deleteComment(@PathVariable Long commentId,
-                                                @SessionAttribute(name = "memberId") Long memberId) {
+                                                @SessionAttribute(name = "memberId", required = false) Long memberId) {
         commentService.deleteComment(commentId, memberId);
         return new ResponseEntity<>("댓글이 삭제 되었습니다.", HttpStatus.OK);
     }
@@ -89,7 +89,7 @@ public class CommentController {
     // 댓글 좋아요 누르기
     @PostMapping("/{commentId}/like")
     public ResponseEntity<String> likeComment(@PathVariable Long commentId,
-                                              @SessionAttribute(name = "memberId") Long memberId) {
+                                              @SessionAttribute(name = "memberId", required = false) Long memberId) {
         commentService.likeComment(commentId, memberId);
         return new ResponseEntity<>("좋아요를 눌렀습니다.", HttpStatus.OK);
     }
@@ -97,7 +97,7 @@ public class CommentController {
     // 댓글 좋아요 취소
     @PostMapping("/{commentId}/unlike")
     public ResponseEntity<String> unlikeComment(@PathVariable Long commentId,
-                                                @SessionAttribute(name = "memberId") Long memberId){
+                                                @SessionAttribute(name = "memberId", required = false) Long memberId){
         commentService.unlikeComment(commentId, memberId);
         return new ResponseEntity<>("좋아요가 취소되었습니다.", HttpStatus.OK);
     }

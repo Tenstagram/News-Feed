@@ -1,16 +1,16 @@
 package com.example.newsfeed.post.controller;
 
+import com.example.newsfeed.member.service.MemberService;
 import com.example.newsfeed.post.dto.request.PostPageRequestDto;
-import com.example.newsfeed.post.dto.request.PostStateChangeRequestDto;
-import com.example.newsfeed.post.dto.response.PostPageResponseDto;
 import com.example.newsfeed.post.dto.request.PostSaveRequestDto;
+import com.example.newsfeed.post.dto.request.PostStateChangeRequestDto;
+import com.example.newsfeed.post.dto.request.PostUpdateRequestDto;
+import com.example.newsfeed.post.dto.response.PostPageResponseDto;
 import com.example.newsfeed.post.dto.response.PostResponseDto;
 import com.example.newsfeed.post.dto.response.PostSaveResponseDto;
-import com.example.newsfeed.post.dto.request.PostUpdateRequestDto;
 import com.example.newsfeed.post.dto.response.PostUpdateResponseDto;
 import com.example.newsfeed.post.service.PostLikeService;
 import com.example.newsfeed.post.service.PostService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,11 +32,20 @@ public class PostController {
 
     private final PostService postService;
     private final PostLikeService postLikeService;
+    private final MemberService memberService;
 
     //게시물 생성
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PostSaveResponseDto> save(@SessionAttribute(name = "token") Long userId, @Valid @RequestPart(name = "postRequest") PostSaveRequestDto dto, @RequestPart(name = "file") List<MultipartFile> mediaUrl,
-                                                    BindingResult result) throws IOException {
+    public ResponseEntity<PostSaveResponseDto> save(
+            @RequestHeader("Authorization") String token,
+            @Valid
+            @RequestPart(name = "postRequest") PostSaveRequestDto dto,
+            @RequestPart(name = "file") List<MultipartFile> mediaUrl,
+            BindingResult result) throws IOException {
+
+        String jwt = token.replace("Bearer", "");
+        Long userId = memberService.getMemberIdFromToken(jwt);
+
         return ResponseEntity.ok(postService.save(userId, dto, mediaUrl));
     }
 
@@ -48,15 +57,26 @@ public class PostController {
 
     //게시물 단건 조회
     @GetMapping("/{postId}")
-    public ResponseEntity<PostResponseDto> findById(@SessionAttribute(name = "token") Long userId, @PathVariable Long postId) {
+    public ResponseEntity<PostResponseDto> findById(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long postId) {
+
+        String jwt = token.replace("Bearer", "");
+        Long userId = memberService.getMemberIdFromToken(jwt);
         return ResponseEntity.ok(postService.findById(postId));
     }
 
     //게시물 수정
     @PatchMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PostUpdateResponseDto> update(@Valid
-                                                        @SessionAttribute(name = "token") Long userId, @PathVariable Long postId, @RequestParam Long memberId,
-                                                        @RequestPart(name = "postUpdateRequest") PostUpdateRequestDto dto, @RequestPart(name = "file") List<MultipartFile> mediaUrl,BindingResult result) throws IOException {
+    public ResponseEntity<PostUpdateResponseDto> update(
+                                                        @RequestHeader("Authorization") String token,
+                                                        @PathVariable Long postId, @RequestParam Long memberId,
+                                                        @Valid
+                                                        @RequestPart(name = "postUpdateRequest") PostUpdateRequestDto dto,
+                                                        @RequestPart(name = "file") List<MultipartFile> mediaUrl, BindingResult result) throws IOException {
+
+        String jwt = token.replace("Bearer", "");
+        Long userId = memberService.getMemberIdFromToken(jwt);
 
         if (userId == memberId) {//본인인지 체크 후 맞으면 실행
             return ResponseEntity.ok(postService.updateById(postId, dto, mediaUrl));
@@ -68,10 +88,13 @@ public class PostController {
     //게시물 상태 변경(공개,비공개,삭제됨)
     @PatchMapping("/{postId}")
     public ResponseEntity<String> changeState(//상태변경 메서드
-                                              @SessionAttribute(name = "token") Long userId, @PathVariable Long postId,
+                                              @RequestHeader("Authorization") String token,@PathVariable Long postId,
                                               @RequestParam Long memberId,
                                               @RequestBody PostStateChangeRequestDto dto) {
-        System.out.println("userId:" + userId);
+
+        String jwt = token.replace("Bearer", "");
+        Long userId = memberService.getMemberIdFromToken(jwt);
+
         if (userId == memberId) {//본인인지 체크 후 맞으면 실행
             return ResponseEntity.ok(postService.changeState(postId, dto) + "게시물입니다.");
         } else {//틀리면 에러
@@ -81,8 +104,11 @@ public class PostController {
 
     //게시물 삭제
     @DeleteMapping("/{postId}")
-    public void delete(@SessionAttribute(name = "token") Long userId, @RequestParam Long memberId,
+    public void delete(@RequestHeader("Authorization") String token,
+                       @RequestParam Long memberId,
                        @PathVariable Long postId) {
+        String jwt = token.replace("Bearer", "");
+        Long userId = memberService.getMemberIdFromToken(jwt);
         if (userId == memberId) {
             postService.deleteById(postId);
         } else {
@@ -97,14 +123,17 @@ public class PostController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam int pageSort, @RequestBody PostPageRequestDto dto
     ) {
-        Page<PostPageResponseDto> result= postService.findAllPage(page, size, pageSort, dto);
+        Page<PostPageResponseDto> result = postService.findAllPage(page, size, pageSort, dto);
 
         return ResponseEntity.ok(result);
     }
 
     //게시물 좋아요
     @PostMapping("/{postId}/likes")
-    public ResponseEntity<String> postLike(@SessionAttribute(name = "token") Long userId, @PathVariable Long postId, @RequestParam Long memberId) {
+    public ResponseEntity<String> postLike(@RequestHeader("Authorization") String token,  @PathVariable Long postId, @RequestParam Long memberId) {
+        String jwt = token.replace("Bearer", "");
+        Long userId = memberService.getMemberIdFromToken(jwt);
+
         if (userId != memberId) {
             postLikeService.likePost(memberId, postId);
             return ResponseEntity.ok("좋아요를 눌렀습니다.");
@@ -113,7 +142,10 @@ public class PostController {
 
     //게시물 좋아요 취소
     @DeleteMapping("/{postId}/cancel")
-    public ResponseEntity<String> postLikeCancel(@SessionAttribute(name = "token") Long userId, @PathVariable Long postId, @RequestParam Long memberId) {
+    public ResponseEntity<String> postLikeCancel(@RequestHeader("Authorization") String token,@PathVariable Long postId, @RequestParam Long memberId) {
+        String jwt = token.replace("Bearer", "");
+        Long userId = memberService.getMemberIdFromToken(jwt);
+
         if (userId != memberId) {
             postLikeService.postLikeCancel(memberId, postId);
             return ResponseEntity.ok("좋아요를 취소했습니다.");

@@ -49,7 +49,6 @@ public class PostService {
     public PostSaveResponseDto save(Long userId, PostSaveRequestDto dto, List<MultipartFile> mediaUrl) {
 
         String fileNameList = getFileName(mediaUrl);
-        //       String fileNameList=fileName.toString();
 
         Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
