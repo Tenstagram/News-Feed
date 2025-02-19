@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/comment")
+@RequestMapping("/comments")
 @RequiredArgsConstructor
 public class CommentController {
 
@@ -58,7 +58,7 @@ public class CommentController {
     // 특정 게시글의 댓글 조회 (베스트 댓글 + 일반 댓글)
     // required = false 할 경우, 세션이 없어도 조회가능
     // => 단, 로그인 하면 세션에 따라 추가 로직 가능 (차단 필터링 등)
-    @GetMapping("/post/{postId}")
+    @GetMapping("/posts/{postId}")
     public ResponseEntity<CommentListResponseDto> getComment(@PathVariable Long postId
             , @SessionAttribute(name = "memberId", required = false) Long memberId) {
 

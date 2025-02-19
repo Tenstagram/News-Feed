@@ -34,11 +34,15 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     // => Top3 키워드는 메서드 이름에 적으면 알아서 적용됨
     // => setMaxResults(3) 는 EntityManager 쿼리문 방식을 사용하여 작성 할때 사용
     // => @Query 쿼리문 방식은 Top3 키워드 방식이 더 알맞음
+
+    // 조건: LikeComment 와 조인하여 삭제된거 필터링 + 좋아요 카운트 후 내림차순으로 정렬 + 카운트된 좋아요 개수로 추가 필터링
+    // => 좋아요 개수는 count()를 사용하기에 where 이 아니라 having 으로 조건 넣어야됨
     @Query("SELECT c " +
             "FROM Comment c " +
             "LEFT JOIN LikeComment lc ON lc.comment.commentId = c.commentId " +
             "WHERE c.post.postId = :postId AND c.deletedAt IS NULL " +
             "GROUP BY c.commentId " +
+            "HAVING COUNT(lc) >= 5 " +
             "ORDER BY COUNT(lc) DESC, c.updatedAt")
     List<Comment> findTop3ByPostIdOrderByLikeCountDesc(@Param("postId") Long postId);
 
