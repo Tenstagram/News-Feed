@@ -8,5 +8,4 @@ import java.util.List;
 
 public interface MediaUrlRepository extends JpaRepository<MediaUrl, Long> {
     List<MediaUrl> findAllByPost(Post post);
-    MediaUrl findByPost(Post post);
 }

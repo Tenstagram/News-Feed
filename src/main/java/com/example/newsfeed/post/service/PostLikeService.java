@@ -43,9 +43,6 @@ public class PostLikeService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
 
-//        if (!memberRepository.existsById(memberId)) {
-//            throw new IllegalArgumentException("해당 유저는 존재하지 않습니다.");
-//        }
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
 

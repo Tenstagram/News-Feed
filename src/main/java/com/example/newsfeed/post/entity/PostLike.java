@@ -4,9 +4,11 @@ package com.example.newsfeed.post.entity;
 import com.example.newsfeed.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@NoArgsConstructor
 @Table(name="PostLike")
 public class PostLike extends BaseEntity{
 
@@ -25,9 +27,5 @@ public class PostLike extends BaseEntity{
     public PostLike(Member member, Post post){
         this.member=member;
         this.post=post;
-    }
-
-    public PostLike() {
-
     }
 }
