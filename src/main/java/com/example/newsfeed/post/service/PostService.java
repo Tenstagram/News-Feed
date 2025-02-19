@@ -53,7 +53,7 @@ public class PostService {
         Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
 
-        Post post = new Post(member, dto.getTitle(), fileNameList, dto.getDescription(), dto.getState());
+        Post post = new Post(member, dto.getTitle(), fileNameList, dto.getDescription());
 
         Post savePost = postRepository.save(post);
 

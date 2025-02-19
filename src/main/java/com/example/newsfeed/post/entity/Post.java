@@ -41,12 +41,12 @@ public class Post extends BaseEntity{
     @Column(nullable = false)
     private State state;
 
-    public Post(Member member, String title, String mediaUrl, String description, State state){
+    public Post(Member member, String title, String mediaUrl, String description){
         this.member=member;
         this.title=title;
         this.mediaUrl=mediaUrl;
         this.description=description;
-        this.state=state;
+        this.state=State.PUBLIC;
     }
 
     public void update(String title, String mediaUrl, String description ,State state){
