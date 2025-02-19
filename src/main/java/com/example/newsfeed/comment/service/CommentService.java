@@ -156,7 +156,7 @@ public class CommentService {
                 .orElseThrow(() -> new AuthenticationException("2"));
 
         // 중복 좋아요 체크
-        if (likeCommentRepository.existsByComment_CommentIdAndMember_memberId(commentId, memberId)) {
+        if (likeCommentRepository.existsByComment_commentIdAndMember_memberId(commentId, memberId)) {
             throw new RepetitionLikeException("이미 좋아요를 눌렀습니다.");
         }
 
@@ -185,7 +185,7 @@ public class CommentService {
                 .orElseThrow(() -> new AuthenticationException("2"));
 
         // 좋아요 여부 검증
-        LikeComment likeComment = likeCommentRepository.findByComment_CommentIdAndMember_memberId(commentId, memberId)
+        LikeComment likeComment = likeCommentRepository.findByComment_commentIdAndMember_memberId(commentId, memberId)
                 .orElseThrow(() -> new RepetitionLikeException("좋아요 기록이 없습니다."));
 
         // 좋아요 기록 삭제
