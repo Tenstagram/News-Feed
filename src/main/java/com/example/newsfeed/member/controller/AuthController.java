@@ -47,7 +47,7 @@ public class AuthController {
     //로그아웃
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
-        //TODO 두가지 방식이 있다. 1. 프론트 2. 레디스 아직 안배움 + 난이도 상 블랙리스트
+        //프론트에 요청.
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

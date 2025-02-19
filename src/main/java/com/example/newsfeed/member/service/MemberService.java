@@ -70,6 +70,7 @@ public class MemberService {
     @Transactional(readOnly = true)
     public MemberResponseDto findById(Long memberId) {
         Member member = findActiveMemberById(memberId);
+
         if (member.getStatus().equals(MemberStatus.DELETED)) {
             throw new ResponseStatusException(HttpStatus.NO_CONTENT,"탈퇴한 회원입니다.");
         }
@@ -142,7 +143,7 @@ public class MemberService {
     @Transactional
     public Long getMemberIdFromToken(String jwt) {
         //JWT 검증 및 이메일 추출
-        String email = jwtUtil.validateToken(jwt);
+        String email = jwtUtil.extractUsername(jwt);
         if (email == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"유효하지 않은 토큰입니다.");
         }

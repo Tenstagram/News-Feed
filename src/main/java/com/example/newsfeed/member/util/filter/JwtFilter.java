@@ -41,7 +41,7 @@ public class JwtFilter implements Filter {
         }
 
         // 토큰 검증
-        String username = jwtUtil.validateToken(token);
+        String username = jwtUtil.extractUsername(token);
         if (username == null) {
             log.warn("유효하지 않은 토큰입니다.");
             httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 토큰입니다.");
