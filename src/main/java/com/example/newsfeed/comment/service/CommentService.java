@@ -58,13 +58,31 @@ public class CommentService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("게시글을 찾을 수 없습니다."));
 
-        // 댓글 객체 생성
-        // Setter 대신 builder 사용 => DB에 저장될 'comment 객체'를 빌드함
-        Comment comment = Comment.builder()
-                .member(member)
-                .post(post)
-                .content(dto.getContent())
-                .build();
+        // 부모 댓글 조회 및 검증
+        Comment comment;
+
+        if (dto.getParentCommentId() != null) {
+            Comment parentComment = commentRepository.findById(dto.getParentCommentId())
+                    .orElseThrow(() -> new NotFoundException("댓글을 찾을 수 없습니다."));
+
+            // 부모 댓글이 있으면 대댓글 생성
+            // 댓글 객체 생성
+            // Setter 대신 builder 사용 => DB에 저장될 'comment 객체'를 빌드함
+            comment = Comment.builder()
+                    .member(member)
+                    .post(post)
+                    .content(dto.getContent())
+                    .parentCommentId(parentComment)
+                    .build();
+
+        } else { // 부모 댓글 없으면 부모 댓글 생성
+            comment = Comment.builder()
+                    .member(member)
+                    .post(post)
+                    .content(dto.getContent())
+                    .build();
+        }
+
 
         // DB에 댓글 객체 저장
         commentRepository.save(comment);
