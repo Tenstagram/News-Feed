@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 public class LoginFilter implements Filter {
 
 
-    private static final String[] WHITE_LIST = {"/","/auth/signup","/auth/login","/auth/logout"};
+    private static final String[] WHITE_LIST = {"/","/auth/signup","/auth/login","/auth/logout","/posts/page"};
 
     @Override
     public void doFilter(
