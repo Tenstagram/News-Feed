@@ -40,12 +40,12 @@ public class JwtUtil {
         }
     }
     // JWT 토큰 생성
-    public String generateToken(String username) {
+    public String generateToken(Long memberId) {
         Date now = new Date();
 
         return BEARER_PREFIX +
                 Jwts.builder()
-                        .setSubject(username)
+                        .setSubject(Long.toString(memberId))
                         .setIssuedAt(now)
                         .setExpiration(new Date(now.getTime() + TOKEN_EXPIRATION_TIME))
                         .signWith(signingKey, signatureAlgorithm)
@@ -53,7 +53,8 @@ public class JwtUtil {
     }
 
     // JWT 유효성 검증 및 사용자 이름 추출
-    public String extractUsername(String token) {
+
+    public Long extractMemberId(String token) {
         try {
             // Bearer 접두어 제거 (있으면 제거)
             if (token.startsWith(BEARER_PREFIX)) {
@@ -66,7 +67,7 @@ public class JwtUtil {
                     .parseClaimsJws(token)
                     .getBody();
 
-            return claims.getSubject(); // 사용자 이름 반환
+            return Long.parseLong(claims.getSubject()); // 사용자Id 반환
         } catch (JwtException e) {
             log.error("JWT 검증 실패: {}", e.getMessage());
             return null; // 유효하지 않은 토큰일 경우 null 반환

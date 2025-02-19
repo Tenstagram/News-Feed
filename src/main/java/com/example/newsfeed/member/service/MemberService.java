@@ -42,16 +42,15 @@ public class MemberService {
     @Transactional
     public LoginResponseDto memberLogin(String email, String password) {
         Member member = memberRepository.findByEmail(email)
-                .orElseThrow(()->new ResponseStatusException(HttpStatus.UNAUTHORIZED,"존재하지 않는 이메일 정보입니다."));
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.UNAUTHORIZED,"존재하지 않는 ID 정보입니다."));
 
         validatePassword(password, member.getPassword());
 
-        //JWT 토큰 생성 추가
-        String token = jwtUtil.generateToken(email);
+        //JWT 토큰 생성 추가 TODO 변경점.
+        String token = jwtUtil.generateToken(member.getId());
         //JWT 토큰을 응답에 포함
         return new LoginResponseDto(member.getId(),member.getName(), member.getEmail(),token);
     }
-
 
     //유저 전체 조회
     @Transactional(readOnly = true)
@@ -139,12 +138,12 @@ public class MemberService {
     @Transactional
     public Long getMemberIdFromToken(String jwt) {
         //JWT 검증 및 이메일 추출
-        String email = jwtUtil.extractUsername(jwt);
-        if (email == null) {
+        Long memberId = jwtUtil.extractMemberId(jwt);
+        if (memberId == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"유효하지 않은 토큰입니다.");
         }
         //이메일로 사용자 조회
-        Member member = memberRepository.findByEmail(email)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"사용자를 찾을 수 없습니다."));
 
         return member.getId();
