@@ -21,4 +21,12 @@ public interface PostRepository extends JpaRepository<Post,Long> {
 
     @Query("SELECT p FROM Post p WHERE (:blockedMemberIds IS NULL OR p.member.id NOT IN :blockedMemberIds)")
     List<Post> findAllExcludingBlockedUsers(@Param("blockedMemberIds") List<Long> blockedMemberIds);
+
+    @Query("""
+        SELECT p FROM Post p
+        WHERE p.member.id IN :friendIds
+        ORDER BY p.updatedAt DESC
+    """)
+    List<Post> findPostsByFriends(@Param("friendIds") List<Long> friendIds);
+
 }

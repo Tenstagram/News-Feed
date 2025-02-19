@@ -67,6 +67,18 @@ public class PostController {
         return ResponseEntity.ok(responseDtos);
     }
 
+    // 친구인 사용자 게시물 최신순 조회
+    @GetMapping("/friends")
+    public ResponseEntity<List<PostResponseDto>> findLatestPostsByFriends(
+            @RequestHeader("Authorization") String token
+    ) {
+        String jwt = token.replace("Bearer","");
+        Long memberId = memberService.getMemberIdFromToken(jwt);
+        List<PostResponseDto> responseDtos = postService.findLatestPostsByFriends(memberId);
+
+        return ResponseEntity.ok(responseDtos);
+    }
+
     //게시물 단건 조회
     @GetMapping("/{postId}")
     public ResponseEntity<PostResponseDto> findById(
@@ -136,7 +148,6 @@ public class PostController {
             @RequestParam int pageSort, @RequestBody PostPageRequestDto dto
     ) {
         Page<PostPageResponseDto> result = postService.findAllPage(page, size, pageSort, dto);
-
         return ResponseEntity.ok(result);
     }
 
