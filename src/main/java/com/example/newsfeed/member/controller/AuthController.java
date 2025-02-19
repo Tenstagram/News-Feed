@@ -35,25 +35,19 @@ public class AuthController {
 
     //로그인
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(HttpServletRequest request,
-                                                  @RequestBody LoginRequestDto dto) {
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto dto) {
         LoginResponseDto loginResponseDto = memberService.memberLogin(dto.getEmail(),dto.getPassword());
 
-        HttpSession session = request.getSession(true);
-        session.setAttribute("token",loginResponseDto.getId());
-
-        return new ResponseEntity<>(loginResponseDto,HttpStatus.OK);
+        //JWT 토큰을 Authrization 헤더에 추가
+        return ResponseEntity.ok()
+                .header("Authorization","Bearer" + loginResponseDto.getToken())
+                .body(loginResponseDto);
     }
 
     //로그아웃
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletRequest request) {
-
-        HttpSession session = request.getSession(false);
-
-        if (session != null) {
-            session.invalidate();
-        }
+    public ResponseEntity<Void> logout() {
+        //TODO 두가지 방식이 있다. 1. 프론트 2. 레디스 아직 안배움 + 난이도 상 블랙리스트
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
