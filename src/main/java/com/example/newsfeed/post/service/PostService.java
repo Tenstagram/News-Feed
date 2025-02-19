@@ -103,8 +103,8 @@ public class PostService {
     }
 
     public List<PostResponseDto> findLatestPostsByFriends(Long memberId) {
-        List<Long> friendIds = relationshipRepository
-                .findFriendIdsExcludingBlocked(memberId, List.of(RelationshipStatus.REQUESTED, RelationshipStatus.ACCEPTED));
+        // 내가 속한 관계 중 BLOCKED 상태가 아닌 관계에서 상대방 id 가져오기
+        List<Long> friendIds = relationshipRepository.findFriendIdsExcludingStatus(memberId, RelationshipStatus.BLOCKED);
 
         // 해당 유저의 친구 id에 맞는 게시물 가져오기
         List<Post> posts = postRepository.findPostsByFriends(friendIds);

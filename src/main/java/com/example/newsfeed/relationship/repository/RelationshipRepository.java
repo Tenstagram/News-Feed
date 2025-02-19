@@ -30,7 +30,7 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Long
     END
     FROM Relationship r
     WHERE (r.sender.id = :memberId OR r.receiver.id = :memberId)
-      AND r.status IN :statuses
+      AND r.status <> :status
     """)
-    List<Long> findFriendIdsExcludingBlocked(@Param("memberId") Long memberId,@Param("statuses") List<RelationshipStatus> statuses);
+    List<Long> findFriendIdsExcludingStatus(@Param("memberId") Long memberId,@Param("status") RelationshipStatus status);
 }
