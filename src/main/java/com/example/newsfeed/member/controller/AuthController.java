@@ -45,6 +45,7 @@ public class AuthController {
     //로그아웃
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
+        // 1.프론트 해결해주는 방법 2.jwt revoke
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
