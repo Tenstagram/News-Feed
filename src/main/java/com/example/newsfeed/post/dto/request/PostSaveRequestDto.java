@@ -17,6 +17,6 @@ public class PostSaveRequestDto {
     @NotBlank(message = "내용은 필수 입력값입니다.")
     private String description;
 
-    private State state;
+ //   private State state;
 
 }

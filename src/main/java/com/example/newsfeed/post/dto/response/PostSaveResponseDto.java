@@ -11,7 +11,6 @@ public class PostSaveResponseDto {
     private final Long postId;
 
     private final String username;
-// api에는 없지만, 유저 이름 추가할까요?
 
     private final String title;
 
