@@ -2,11 +2,13 @@ package com.example.newsfeed.post.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
 @Table(name = "media_url")
 public class MediaUrl extends BaseEntity{
 
@@ -43,10 +45,6 @@ public class MediaUrl extends BaseEntity{
         this.storedMediaName=storedMediaName;
         this.mediaUrl=mediaUrl;
         this.post=post;
-    }
-
-    public MediaUrl() {
-
     }
 
 }
