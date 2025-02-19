@@ -7,8 +7,6 @@ import com.example.newsfeed.member.dto.SignupRequestDto;
 import com.example.newsfeed.member.dto.SignupResponseDto;
 import com.example.newsfeed.member.entity.MemberStatus;
 import com.example.newsfeed.member.service.MemberService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -35,25 +33,18 @@ public class AuthController {
 
     //로그인
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(HttpServletRequest request,
-                                                  @RequestBody LoginRequestDto dto) {
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto dto) {
         LoginResponseDto loginResponseDto = memberService.memberLogin(dto.getEmail(),dto.getPassword());
 
-        HttpSession session = request.getSession(true);
-        session.setAttribute("token",loginResponseDto.getId());
-
-        return new ResponseEntity<>(loginResponseDto,HttpStatus.OK);
+        //JWT 토큰을 Authrization 헤더에 추가
+        return ResponseEntity.ok()
+                .header("Authorization","Bearer" + loginResponseDto.getToken())
+                .body(loginResponseDto);
     }
 
     //로그아웃
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletRequest request) {
-
-        HttpSession session = request.getSession(false);
-
-        if (session != null) {
-            session.invalidate();
-        }
+    public ResponseEntity<Void> logout() {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

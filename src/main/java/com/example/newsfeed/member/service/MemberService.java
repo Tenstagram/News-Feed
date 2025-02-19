@@ -7,6 +7,7 @@ import com.example.newsfeed.member.dto.SignupResponseDto;
 import com.example.newsfeed.member.entity.Member;
 import com.example.newsfeed.member.entity.MemberStatus;
 import com.example.newsfeed.member.repository.MemberRepository;
+import com.example.newsfeed.member.util.filter.JwtUtil;
 import com.example.newsfeed.util.config.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,12 +20,14 @@ import java.util.List;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class MemberService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder encoder;
+    private final JwtUtil jwtUtil;
+
 
     //회원가입 이름 이메일 비밀번호
     @Transactional
@@ -38,10 +41,17 @@ public class MemberService {
     //로그인
     @Transactional
     public LoginResponseDto memberLogin(String email, String password) {
-        Member member = memberRepository.findByEmail(email).orElseThrow(()->new ResponseStatusException(HttpStatus.UNAUTHORIZED,"존재하지 않는 이메일 정보입니다."));
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.UNAUTHORIZED,"존재하지 않는 이메일 정보입니다."));
+
         validatePassword(password, member.getPassword());
-        return new LoginResponseDto(member.getId(),member.getName(), member.getEmail());
+
+        //JWT 토큰 생성 추가
+        String token = jwtUtil.generateToken(email);
+        //JWT 토큰을 응답에 포함
+        return new LoginResponseDto(member.getId(),member.getName(), member.getEmail(),token);
     }
+
 
     //유저 전체 조회
     @Transactional(readOnly = true)
@@ -53,9 +63,10 @@ public class MemberService {
     }
 
     //유저 단건 조회
-    public MemberResponseDto findById(Long id) {
-        Member member = memberRepository.findById(id).orElseThrow
-                (()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"조회된 정보가 없습니다."));
+    @Transactional(readOnly = true)
+    public MemberResponseDto findById(Long memberId) {
+        Member member = findActiveMemberById(memberId);
+
         if (member.getStatus().equals(MemberStatus.DELETED)) {
             throw new ResponseStatusException(HttpStatus.NO_CONTENT,"탈퇴한 회원입니다.");
         }
@@ -65,10 +76,7 @@ public class MemberService {
     //유저 이메일 변경
     @Transactional
     public void updateEmail(Long memberId, String newEmail) {
-        Member member = memberRepository.findById(memberId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"사용자를 찾을 수 없습니다"));
-        if (!member.getId().equals(memberId)) {
-            throw new IllegalArgumentException("본인의 이메일만 수정할 수 있습니다.");
-        }
+        Member member = findActiveMemberById(memberId);
         member.updateEmail(newEmail);
         memberRepository.save(member);
     }
@@ -76,9 +84,7 @@ public class MemberService {
     //유저 이름 변경
     @Transactional
     public void updateName(Long memberId, String newName) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
-
+        Member member = findActiveMemberById(memberId);
         member.updateName(newName);
         memberRepository.save(member);
     }
@@ -116,17 +122,32 @@ public class MemberService {
 
     /*비밀번호 검증 메서드*/
     public void validatePassword(String newPassword, String password) {
-        boolean passwordMatch = encoder.matches(newPassword,password);
-        if (!passwordMatch) {
+        if (!encoder.matches(newPassword, password)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
         }
     }
 
-    /*사용자 검증 메서드*/
-    public void validateMemberExists(Long memberId) {
-        if (!memberRepository.existsById(memberId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"사용자를 찾을 수 없습니다.");
+    //활성화된 회원 조회 메서드
+    private Member findActiveMemberById(Long memberId) {
+        return memberRepository.findById(memberId)
+                .filter(member -> member.getStatus() == MemberStatus.ACTIVATE)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
+    }
+
+
+    /*jwt 토큰에서 Id 추출 메서드*/
+    @Transactional
+    public Long getMemberIdFromToken(String jwt) {
+        //JWT 검증 및 이메일 추출
+        String email = jwtUtil.extractUsername(jwt);
+        if (email == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"유효하지 않은 토큰입니다.");
         }
+        //이메일로 사용자 조회
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"사용자를 찾을 수 없습니다."));
+
+        return member.getId();
     }
 
 }

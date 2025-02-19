@@ -11,19 +11,22 @@ public class PostResponseDto {
 
     private final String title;
 
+    private final String userName;
+
     private final String mediaUrl;
 
     private final String description;
 
     private final State state;
 
-    private final int likeCount;
+    private final Long likeCount;
 
-    private final int commentCount;
+    private final Long commentCount;
 
-    public PostResponseDto(Long postId, String title, String mediaUrl, String description, State state, int likeCount, int commentCount) {
+    public PostResponseDto(Long postId, String title, String userName, String mediaUrl, String description, State state, Long likeCount, Long commentCount) {
         this.postId = postId;
         this.title = title;
+        this.userName = userName;
         this.mediaUrl = mediaUrl;
         this.description = description;
         this.state = state;

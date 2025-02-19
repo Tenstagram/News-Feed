@@ -6,6 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Entity
 @NoArgsConstructor
@@ -22,21 +26,23 @@ public class Post extends BaseEntity{
 
     private String description;
 
-    private String name;
-
     @ManyToOne
     @JoinColumn(name="member_id")
     private Member member;
 
-    private int likeCount=0;
+    @OneToMany(mappedBy ="post")
+    private List<PostLike> postLike = new ArrayList<>();;
 
-    private int commentCount;
+    private long likeCount=0;
+
+    private long commentCount=0;
 
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
     private State state;
 
-    public Post(String title, String mediaUrl, String description, State state){
+    public Post(Member member, String title, String mediaUrl, String description, State state){
+        this.member=member;
         this.title=title;
         this.mediaUrl=mediaUrl;
         this.description=description;

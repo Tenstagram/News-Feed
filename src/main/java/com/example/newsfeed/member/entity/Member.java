@@ -1,9 +1,11 @@
 package com.example.newsfeed.member.entity;
 
+import com.example.newsfeed.post.entity.PostLike;
 import jakarta.persistence.*;
 import lombok.Getter;
 
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Getter
@@ -29,6 +31,9 @@ public class Member extends BaseEntity{
 
     @Column()
     private int follower;
+
+    @OneToMany(mappedBy="member")
+    private List<PostLike> postLike = new ArrayList<>();;
 
     //회원 탈퇴, 회원가입 시
     @Enumerated(EnumType.STRING)
