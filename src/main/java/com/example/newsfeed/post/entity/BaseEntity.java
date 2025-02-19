@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public class BaseEntity {
+
     @CreatedDate
     @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -26,7 +27,7 @@ public class BaseEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime deletedAt;
 
-    public void setDeletedAt(){
-        this.deletedAt=LocalDateTime.now();
+    public void setDeletedAt() {
+        this.deletedAt = LocalDateTime.now();
     }
 }

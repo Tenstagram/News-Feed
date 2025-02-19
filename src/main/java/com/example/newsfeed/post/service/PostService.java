@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -169,7 +170,9 @@ public class PostService {
             pageS = postRepository.findAllByOrderByLikeCountDesc(pageable);
         }
         if (pageSort == 4) {//기간별 페이지 정렬
-            pageS = postRepository.findByCreatedAtBetween(dto.getStartDate(), dto.getEndDate(), pageable);
+            LocalDateTime startDate = dto.getStartDate().atStartOfDay();
+            LocalDateTime endDate = dto.getEndDate().atStartOfDay();
+            pageS = postRepository.findByCreatedAtBetween(startDate, endDate, pageable);
         }
 
         return pageS.map(post ->
@@ -208,44 +211,5 @@ public class PostService {
 
         return fileName.toString();
     }
-//
-//    public Page<PostPageResponseDto>  findByUpdatedAtPage(int page, int size) {
-//        Pageable pageable = PageRequest.of(page - 1, size);
-//        Page<Post> pageS = postRepository.findAllByOrderByUpdatedAtDesc(pageable);
-//
-//        return pageS.map(post ->
-//                new PostPageResponseDto(post.getPostId(),
-//                        post.getTitle(),
-//                        post.getMediaUrl(),
-//                        post.getDescription(),
-//                        post.getLikeCount(),
-//                        commentRepository.countByPost(post)));
-//    }
-//
-//    public Page<PostPageResponseDto> findByLikeCountPage(int page, int size) {
-//        Pageable pageable = PageRequest.of(page - 1, size);
-//        Page<Post> pageS = postRepository.findAllByOrderByLikeCountDesc(pageable);
-//
-//        return pageS.map(post ->
-//                new PostPageResponseDto(post.getPostId(),
-//                        post.getTitle(),
-//                        post.getMediaUrl(),
-//                        post.getDescription(),
-//                        post.getLikeCount(),
-//                        commentRepository.countByPost(post)));
-//    }
-//
-//    public Page<PostPageResponseDto> findByPeriodPage(int page, int size, LocalDateTime startDate, LocalDateTime endDate) {
-//        Pageable pageable = PageRequest.of(page - 1, size);
-//        Page<Post> pageS = postRepository.findByCreatedAtBetween( startDate,  endDate, pageable);
-//
-//        return pageS.map(post ->
-//                new PostPageResponseDto(post.getPostId(),
-//                        post.getTitle(),
-//                        post.getMediaUrl(),
-//                        post.getDescription(),
-//                        post.getLikeCount(),
-//                        commentRepository.countByPost(post)));
-//    }
 
 }

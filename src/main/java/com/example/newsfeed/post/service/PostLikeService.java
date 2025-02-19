@@ -26,10 +26,6 @@ public class PostLikeService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
 
-//        if(postLikeRepository.existsByPost(post)){
-//            if(postLikeRepository.countByMember(member)>=1){
-//            throw new IllegalArgumentException("좋아요는 한 번만 누를 수 있습니다.");
-//        }}
         if(postLikeRepository.countByPostAndMember(post,member)>=1){
               throw new IllegalArgumentException("좋아요는 한 번만 누를 수 있습니다.");
         }

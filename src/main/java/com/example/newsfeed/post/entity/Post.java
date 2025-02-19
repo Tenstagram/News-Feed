@@ -6,6 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Entity
 @NoArgsConstructor
@@ -25,6 +29,9 @@ public class Post extends BaseEntity{
     @ManyToOne
     @JoinColumn(name="member_id")
     private Member member;
+
+    @OneToMany(mappedBy ="post")
+    private List<PostLike> postLike = new ArrayList<>();;
 
     private long likeCount=0;
 

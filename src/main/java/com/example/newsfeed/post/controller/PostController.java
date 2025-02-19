@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -34,7 +35,8 @@ public class PostController {
 
     //게시물 생성
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PostSaveResponseDto> save(@SessionAttribute(name = "token") Long userId, @Valid @RequestPart(name = "postRequest") PostSaveRequestDto dto, @RequestPart(name = "file") List<MultipartFile> mediaUrl) throws IOException {
+    public ResponseEntity<PostSaveResponseDto> save(@SessionAttribute(name = "token") Long userId, @Valid @RequestPart(name = "postRequest") PostSaveRequestDto dto, @RequestPart(name = "file") List<MultipartFile> mediaUrl,
+                                                    BindingResult result) throws IOException {
         return ResponseEntity.ok(postService.save(userId, dto, mediaUrl));
     }
 
@@ -54,7 +56,7 @@ public class PostController {
     @PatchMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PostUpdateResponseDto> update(@Valid
                                                         @SessionAttribute(name = "token") Long userId, @PathVariable Long postId, @RequestParam Long memberId,
-                                                        @RequestPart(name = "postUpdateRequest") PostUpdateRequestDto dto, @RequestPart(name = "file") List<MultipartFile> mediaUrl) throws IOException {
+                                                        @RequestPart(name = "postUpdateRequest") PostUpdateRequestDto dto, @RequestPart(name = "file") List<MultipartFile> mediaUrl,BindingResult result) throws IOException {
 
         if (userId == memberId) {//본인인지 체크 후 맞으면 실행
             return ResponseEntity.ok(postService.updateById(postId, dto, mediaUrl));
