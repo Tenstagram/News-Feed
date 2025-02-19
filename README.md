@@ -42,7 +42,6 @@
    - **특정 사용자 차단 해제** : 차단한 사용자의 차단 상태를 해제합니다.
 
 ## 🛠️ 기술 스택
-
 ### Backend
 - Java 17+
 - Spring Boot 3.4.2
@@ -62,6 +61,7 @@
 
 ## 📆 개발 기간
 2025-02-14 ~ 2025-02-20
+
 
 ## 📂 프로젝트 구조
 ```
@@ -136,4 +136,38 @@ src
 
 시연 영상 보기
 
+
+## ✨ 팀원
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/KimKiHong-1111">
+        <img src="https://avatars.githubusercontent.com/u/188948297?v=4" width="100px;" alt=""/>
+        <br /><b>김기홍</b>
+      </a>
+      <br /><small>댓글</small>
+    </td>
+    <td align="center">
+      <a href="https://github.com/bopeep934">
+        <img src="https://avatars.githubusercontent.com/u/191215415?v=4" width="100px;" alt=""/>
+        <br /><b>송윤정</b>
+      </a>
+      <br /><small>게시물</small>
+    </td>
+    <td align="center">
+      <a href="https://github.com/3uomlkh">
+        <img src="https://avatars.githubusercontent.com/u/86907076?v=4" width="100px;" alt=""/>
+        <br /><b>이채원</b>
+      </a>
+      <br /><small>팔로우/차단</small>
+    </td>
+    <td align="center">
+      <a href="https://github.com/uyr83157">
+        <img src="https://avatars.githubusercontent.com/u/192572219?v=4" width="100px;" alt=""/>
+        <br /><b>정의용</b>
+      </a>
+      <br /><small>사용자, 인증/인가</small>
+    </td>
+  </tr>
+</table>
 
