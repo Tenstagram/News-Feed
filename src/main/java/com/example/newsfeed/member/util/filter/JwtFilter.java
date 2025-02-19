@@ -42,14 +42,14 @@ public class JwtFilter implements Filter {
         }
 
         // 토큰 검증
-        String username = jwtUtil.extractUsername(token);
-        if (username == null) {
+        Long memberId = jwtUtil.extractMemberId(token);
+        if (memberId == null) {
             log.warn("유효하지 않은 토큰입니다.");
             httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 토큰입니다.");
             return;
         }
 
-        log.info("인증된 사용자: {}", username);
+        log.info("인증된 사용자: {}", memberId);
         chain.doFilter(request, response);
     }
 
