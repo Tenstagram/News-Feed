@@ -23,13 +23,13 @@ public interface LikeCommentRepository extends JpaRepository<LikeComment, Long> 
 
     // 좋아요 중복 체크 메서드
     // 해당 댓글 id와 멤버 id가 DB에 묶여서 존재하는 지, true / false 반환
-    boolean existsByComment_commentIdAndMember_memberId(Long commentId, Long memberId);
+    boolean existsByComment_commentIdAndMember_id(Long commentId, Long memberId);
 
     // 좋아요 기록을 조회 메서드
     // 댓글 id와 멤버 id가 DB에 묶여서 존재하는 것을 찾음
     // 왜 이건 boolean 반환을 안할까? => 위는 단 순히 O/X 만 판단하면 되지만,
     // 이건 있으면 그걸 가져와서 likeComment 객체에 넣어야 하기 때문에 likeComment 객체로 반환함
     // 그런데 생으로 반환 시키면 null 일때 오류 발생하니 Optional 타입으로 묶어서 포장해서 가져옴
-    Optional<LikeComment> findByComment_commentIdAndMember_memberId(Long commentId, Long memberId);
+    Optional<LikeComment> findByComment_commentIdAndMember_id(Long commentId, Long memberId);
 
 }
