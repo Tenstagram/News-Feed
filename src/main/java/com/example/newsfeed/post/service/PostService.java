@@ -2,6 +2,7 @@ package com.example.newsfeed.post.service;
 
 import com.example.newsfeed.comment.repository.CommentRepository;
 import com.example.newsfeed.member.entity.Member;
+import com.example.newsfeed.member.exception.MemberNotFoundException;
 import com.example.newsfeed.member.repository.MemberRepository;
 import com.example.newsfeed.post.dto.request.PostPageRequestDto;
 import com.example.newsfeed.post.dto.request.PostSaveRequestDto;
@@ -13,6 +14,8 @@ import com.example.newsfeed.post.dto.response.PostSaveResponseDto;
 import com.example.newsfeed.post.dto.response.PostUpdateResponseDto;
 import com.example.newsfeed.post.entity.Post;
 import com.example.newsfeed.post.entity.State;
+import com.example.newsfeed.post.exception.PostAlreadyDeletedException;
+import com.example.newsfeed.post.exception.PostNotFoundException;
 import com.example.newsfeed.post.repository.PostRepository;
 import com.example.newsfeed.relationship.entity.RelationshipStatus;
 import com.example.newsfeed.relationship.repository.RelationshipRepository;
@@ -46,7 +49,7 @@ public class PostService {
         String fileNameList = getFileName(mediaUrl);
 
         Member member = memberRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
+                .orElseThrow(MemberNotFoundException::new);
 
         Post post = new Post(member, dto.getTitle(), fileNameList, dto.getDescription());
 
@@ -117,10 +120,10 @@ public class PostService {
     @Transactional
     public PostResponseDto findById(Long id) {
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
+                .orElseThrow(PostNotFoundException::new);
 
         if (post.getState() == STATE_DELETE) //삭제상태인지 확인
-            throw new IllegalArgumentException("해당 게시글은 삭제됐습니다.");
+            throw new PostAlreadyDeletedException();
 
         return new PostResponseDto(
                 post.getPostId(),
@@ -210,7 +213,7 @@ public class PostService {
     @Transactional
     public String changeState(Long id, PostStateChangeRequestDto dto) {//상태변경
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
+                .orElseThrow(PostNotFoundException::new);
 
         post.changeState(dto.getState());
 
