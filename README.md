@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://readme-typing-svg.herokuapp.com/?font=Fira+Code&size=30&duration=3000&color=F74B00&center=true&vCenter=true&width=500&height=50&lines=🔥+Welcome+to+Tenstagram!" />
+</p>
+
 # 📰 뉴스피드
 이 프로젝트는 `Spring Boot`와 `MySQL`을 사용하여 개발된 게시판 관리 API 입니다.<br>
 `JWT` 방식의 인증 방법을 사용하고 있으며, `JPA`를 활용한 `MySQL DB`를 사용하고 있습니다.<br>
@@ -6,6 +10,7 @@
 
 ![Java](https://img.shields.io/badge/Java-17-blue?style=for-the-badge&logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.2-green?style=for-the-badge&logo=springboot&logoColor=white)
+![JPA](https://img.shields.io/badge/JPA-Hibernate%20ORM-%236DB33F?style=for-the-badge&logo=hibernate&logoColor=white)
 ![JWT](https://img.shields.io/badge/JWT-Authentication-%233A3A3A?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
 ![Hibernate](https://img.shields.io/badge/Hibernate-6.6.5.Final-%236DB33F?style=for-the-badge&logo=hibernate&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-orange?style=for-the-badge&logo=mysql&logoColor=white)
@@ -170,4 +175,3 @@ src
     </td>
   </tr>
 </table>
-
