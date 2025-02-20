@@ -145,7 +145,7 @@ src
         <img src="https://avatars.githubusercontent.com/u/188948297?v=4" width="100px;" alt=""/>
         <br /><b>김기홍</b>
       </a>
-      <br /><small>댓글</small>
+      <br /><small>사용자, 인증/인가</small>
     </td>
     <td align="center">
       <a href="https://github.com/bopeep934">
@@ -166,7 +166,7 @@ src
         <img src="https://avatars.githubusercontent.com/u/192572219?v=4" width="100px;" alt=""/>
         <br /><b>정의용</b>
       </a>
-      <br /><small>사용자, 인증/인가</small>
+      <br /><small>댓글</small>
     </td>
   </tr>
 </table>
