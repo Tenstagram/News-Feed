@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class CommentService {
 
     private final CommentRepository commentRepository;
@@ -38,8 +37,6 @@ public class CommentService {
 
 
     // 댓글 작성 메서드
-    // Transactional: 예외가 발생할 수 있는 작업에서 만약 예외가 발생하면, 해당 작업을 처음으로 롤백시킴
-    // => ArithmeticException or PostNotFoundException 발생 시, DB를 작업 전으로 롤백시킴
     @Transactional
     public CommentResponseDto addComment(Long memberId, Long postId, CommentAddRequestDto dto) {
 
@@ -47,25 +44,17 @@ public class CommentService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(AuthenticationException::new);
 
-        // .orElseThrow(() -> new ArithmeticException("메세지"));
-        // 이 방식은 내가 그때 그때 메세지 넣을 때 쓰는 방식
-        // .orElseThrow(AuthenticationException::new);
-        // 이 방식은 전역 핸들러에서 메세지를 한번에 관리하는 방식
-
         // 게시글 조회 로직 => 게시글이 유효한지
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
 
         // 부모 댓글 조회 및 검증
         Comment comment;
-
         if (dto.getParentCommentId() != null) {
             Comment parentComment = commentRepository.findById(dto.getParentCommentId())
                     .orElseThrow(CommentNotFoundException::new);
 
             // 부모 댓글이 있으면 대댓글 생성
-            // 댓글 객체 생성
-            // Setter 대신 builder 사용 => DB에 저장될 'comment 객체'를 빌드함
             comment = Comment.builder()
                     .member(member)
                     .post(post)
@@ -86,13 +75,10 @@ public class CommentService {
         commentRepository.save(comment);
 
         // 응답 DTO 로 반환
-        // 여기선 반환하는 '응답 DTO' 를 빌드함 => 그래서 결과적으로 한 과정에서 빌드를 2번하는 셈
         return toCommentResponseDto(comment);
     }
 
     // 특정 게시글의 댓글 조회
-    // 나중에 차단 기능 추가 여부에 따라 여기서 특정 멤버 ID 받아서 필터링 해도 될듯
-    // => 필터링은 레포지토리 계층에서 쿼리 메서드 구현하고 여기서 받아서 쓰는 느낌으로 하면 될듯
     @Transactional
     public CommentListResponseDto getCommentsByPostId(Long postId) {
 
@@ -142,11 +128,6 @@ public class CommentService {
     // DB에 저장한 객체(엔티티)를 응답 DTO 로 변환해주는 메서드
     private CommentResponseDto toCommentResponseDto(Comment comment) {
 
-        // CommentResponseDto 필드값대로 빌드를 해야함 (순서는 굳이 안맞춰도 상관 없음)
-        // 모든 필드값을 전부 빌드할 필요는 없음 (필드 안한 값들은 자동으로 null 로 포장되어 반환됨)
-        // 문법: .필드값상자(상자내용물(어디서 값을 가져와서 상자에 담을지))
-        // => .name(comment.getMember().getName())
-        // => comment 객체(엔티티)에 있는 Member 객체를 Get 하고, 그 Member 객체(엔티티)에서 name 값을 Get 해서 응답 DTO 의 name 필드에 담음
         return CommentResponseDto.builder()
                 .commentId(comment.getCommentId())
                 .name(comment.getMember().getName())
@@ -156,7 +137,6 @@ public class CommentService {
                 .childCount(comment.getChildCount())
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())
-                // 주의점: JS 에서만 null 이 false 처리지, java 에서는 null 을 조건에 넣을 수 없음 => '값 == null' 으로 조건식 만들어줘야함
                 // parentCommentId 값이 null 이면 최상위 댓글, 값이 있으면 대댓글
                 .parentCommentId(comment.getParentCommentId() == null ? null : comment.getParentCommentId().getCommentId())
                 .build();
@@ -233,7 +213,6 @@ public class CommentService {
                 .orElseThrow(CommentNotFoundException::new);
 
         // 사용자 인증
-        // 저는 편의상 멤버 id를 memberId 로 했는 데, 현재 member 객체에 필드명이 id 라서 getId 로 변경
         if (!comment.getMember().getId().equals(memberId)) {
             // 아무 메세지나 입력해도 전역 핸들러에서 메세지 관리됨
             throw new AuthenticationException();
@@ -247,7 +226,7 @@ public class CommentService {
         return comment;
     }
 
-    // 멤버 id 받으면 검증과정에서 댓글 작성자만 좋아요 가능 => 멤버 id 안받게 변경
+    // 댓글 검증
     private Comment verifyCommentForLike(Long commentId) {
 
         // 수정할 댓글 조회
