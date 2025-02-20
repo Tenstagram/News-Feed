@@ -139,7 +139,7 @@ src
 ## 📺 시연 영상
 프로젝트 시연 영상은 영상 링크를 통해 확인할 수 있습니다.
 
-시연 영상 보기
+[시연 영상 보기](https://drive.google.com/file/d/1IsLlN3AgyoCeHCh2FOPmvX2WIWExwAhE/view?usp=drive_link)
 
 
 ## ✨ 팀원
