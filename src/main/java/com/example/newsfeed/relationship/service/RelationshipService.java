@@ -165,12 +165,24 @@ public class RelationshipService {
         Member receiver = memberRepository.findById(receiverId)
                 .orElseThrow(IllegalStateException::new);
 
-        // 차단 관계 생성
-        Relationship relationship = new Relationship(sender, receiver);
-        relationship.updateStatus(RelationshipStatus.BLOCKED);
-        relationshipRepository.save(relationship);
+        Relationship relationship = relationshipRepository.findBySenderIdAndReceiverId(senderId, receiverId)
+                .orElse(relationshipRepository.findBySenderIdAndReceiverId(senderId, receiverId)
+                        .orElse(null));
+        if (relationship != null) {
+            if (relationship.getStatus() == RelationshipStatus.ACCEPTED ||
+                    relationship.getStatus() == RelationshipStatus.REQUESTED) {
+                // 이미 관계가 존재한다면 상태 변경
+                relationship.updateStatus(RelationshipStatus.BLOCKED);
+                return BlockResponseDto.of(relationship);
+            }
+        }
 
-        return BlockResponseDto.of(relationship);
+        // 차단 관계 생성
+        Relationship blockedRelationship = new Relationship(sender, receiver);
+        relationship.updateStatus(RelationshipStatus.BLOCKED);
+        relationshipRepository.save(blockedRelationship);
+
+        return BlockResponseDto.of(blockedRelationship);
     }
 
     public List<BlockResponseDto> getBlockedMembers(Long memberId) {

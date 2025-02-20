@@ -1,4 +1,4 @@
-package com.example.newsfeed.relationship.exception;
+package com.example.newsfeed.common.exception;
 
 import lombok.Getter;
 

@@ -6,6 +6,10 @@ import com.example.newsfeed.member.dto.MemberResponseDto;
 import com.example.newsfeed.member.dto.SignupResponseDto;
 import com.example.newsfeed.member.entity.Member;
 import com.example.newsfeed.member.entity.MemberStatus;
+import com.example.newsfeed.member.exception.IncorrectPasswordException;
+import com.example.newsfeed.member.exception.MemberDeactivatedException;
+import com.example.newsfeed.member.exception.MemberNotFoundException;
+import com.example.newsfeed.member.exception.ProfileImageRequiredException;
 import com.example.newsfeed.member.repository.MemberRepository;
 import com.example.newsfeed.member.util.filter.JwtUtil;
 import com.example.newsfeed.util.config.PasswordEncoder;
@@ -67,7 +71,7 @@ public class MemberService {
         Member member = findActiveMemberById(memberId);
 
         if (member.getStatus().equals(MemberStatus.DELETED)) {
-            throw new ResponseStatusException(HttpStatus.NO_CONTENT,"탈퇴한 회원입니다.");
+            throw new MemberDeactivatedException();
         }
         return new MemberResponseDto(member.getId(),member.getName(),member.getEmail());
     }
@@ -92,16 +96,18 @@ public class MemberService {
     @Transactional
     public void updateImage(Long memberId, String newProfileUrl) {
         if (newProfileUrl == null || newProfileUrl.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"프로필 이미지 URL을 입력해야 합니다.");
+            throw new ProfileImageRequiredException();
         }
-        Member member = memberRepository.findById(memberId).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"사용자를 찾을 수 없습니다"));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(MemberNotFoundException::new);
         member.updateImage(newProfileUrl);
     }
 
     //유저 비밀번호 변경
     @Transactional
     public void updatePassword(Long id, String oldPassword, String newPassword) {
-        Member findMember = memberRepository.findById(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.UNAUTHORIZED,"수정할 수 있는 데이터가 없습니다."));
+        Member findMember = memberRepository.findById(id)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.UNAUTHORIZED,"수정할 수 있는 데이터가 없습니다."));
         //기존 비밀번호 검증
         validatePassword(oldPassword, findMember.getPassword());
         //새 비밀번호 암호화 후 저장
@@ -112,7 +118,8 @@ public class MemberService {
     //유저 삭제(탈퇴)
     @Transactional
     public void delete(Long memberId,String password) {
-        Member member = memberRepository.findById(memberId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"삭제할 데이터가 없습니다."));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"삭제할 데이터가 없습니다."));
         //비밀번호 검증
         validatePassword(password, member.getPassword());
         member.delete();
@@ -122,7 +129,7 @@ public class MemberService {
     /*비밀번호 검증 메서드*/
     public void validatePassword(String newPassword, String password) {
         if (!encoder.matches(newPassword, password)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
+            throw new IncorrectPasswordException();
         }
     }
 
@@ -130,7 +137,7 @@ public class MemberService {
     private Member findActiveMemberById(Long memberId) {
         return memberRepository.findById(memberId)
                 .filter(member -> member.getStatus() == MemberStatus.ACTIVATE)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
+                .orElseThrow(MemberNotFoundException::new);
     }
 
 
@@ -144,7 +151,7 @@ public class MemberService {
         }
         //이메일로 사용자 조회
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"사용자를 찾을 수 없습니다."));
+                .orElseThrow(MemberNotFoundException::new);
 
         return member.getId();
     }

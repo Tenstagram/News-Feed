@@ -31,29 +31,6 @@ public class CommentController {
         String jwt = token.replace("Bearer", "");
         Long memberId = memberService.getMemberIdFromToken(jwt);
 
-        // HttpSession session 객체 활용 방식 말고 @SessionAttribute 어노테이션으로도 가능
-        // 주의: 어노테이션으로 할 때, memberId 가 null 이면, AuthenticationException 까지 안가고
-        // Spring 에서 바로 ServletRequestBindingException 발생시킴
-        // => GlobalExceptionHandler 에서 ServletRequestBindingException 도 추가 관리 해줘야됨
-        // ----------
-        // getAttribute 는 Optional 을 사용하지 않고 바로 Object 를 반환함
-        // => 그래서 .orElseThrow() 사용 불가능함
-        // => Long memberId = Optional.ofNullable((Long) session.getAttribute("memberId"))
-        //    .orElseThrow(() -> new AuthenticationException("사용자를 찾을 수 없습니다."));
-        // 이렇게 Optional 으로 감싸주면 .orElseThrow() 쓸 수 있어서 짧게 표현 가능
-        // Optional.ofNullable(): null 을 허용 해서 Optional 로 감싸주는 Optional 클래스의 메서드
-
-        // 컨트롤러 계층에서 이미 memberId 에 대해 AuthenticationException 예외를 던지고 있다면, 굳이 서비스 계층에서 또 던질 필요가 있는가?
-        // => 아님, 컨트롤러에서는 세션에 대한 memberId 예외 처리이고, 서비스는 DB 에서의 memberId 예외 처리임.
-        // => 세션의 memberId 가 유효하다고 해도, DB 에서는 유효하다고 보장할 수 없음. + @Transactional 사용하기 위함인것도 있음
-//        Long memberId = (Long) session.getAttribute("memberId");
-//        if (memberId == null) {
-//            // 세션에서 memberId을 조회하고 없으면 예외 처리
-//            throw new AuthenticationException("사용자를 찾을 수 없습니다.");
-//        }
-
-        // 2가지 반환 방법 다 가능
-//        return ResponseEntity.status(HttpStatus.CREATED).body(commentService.addComment(memberId, postId, dto));
 
         CommentResponseDto response = commentService.addComment(memberId, postId, dto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -61,8 +38,6 @@ public class CommentController {
 
 
     // 특정 게시글의 댓글 조회 (베스트 댓글 + 일반 댓글)
-    // required = false 할 경우, 세션이 없어도 조회가능
-    // => 단, 로그인 하면 세션에 따라 추가 로직 가능 (차단 필터링 등)
     @GetMapping("/posts/{postId}")
     public ResponseEntity<CommentListResponseDto> getComment(@PathVariable Long postId) {
 

@@ -55,6 +55,30 @@ public class PostController {
         return ResponseEntity.ok(postService.findAll());
     }
 
+    // 차단된 사용자 제외 게시글 조회
+    @GetMapping("/filtered")
+    public ResponseEntity<List<PostResponseDto>> findAllExcludingBlockedUsers(
+            @RequestHeader("Authorization") String token
+    ) {
+        String jwt = token.replace("Bearer", "");
+        Long memberId = memberService.getMemberIdFromToken(jwt);
+        List<PostResponseDto> responseDtos = postService.findAllExcludingBlockedUsers(memberId);
+
+        return ResponseEntity.ok(responseDtos);
+    }
+
+    // 친구인 사용자 게시물 최신순 조회
+    @GetMapping("/friends")
+    public ResponseEntity<List<PostResponseDto>> findLatestPostsByFriends(
+            @RequestHeader("Authorization") String token
+    ) {
+        String jwt = token.replace("Bearer","");
+        Long memberId = memberService.getMemberIdFromToken(jwt);
+        List<PostResponseDto> responseDtos = postService.findLatestPostsByFriends(memberId);
+
+        return ResponseEntity.ok(responseDtos);
+    }
+
     //게시물 단건 조회
     @GetMapping("/{postId}")
     public ResponseEntity<PostResponseDto> findById(
@@ -69,11 +93,11 @@ public class PostController {
     //게시물 수정
     @PatchMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PostUpdateResponseDto> update(
-                                                        @RequestHeader("Authorization") String token,
-                                                        @PathVariable Long postId, @RequestParam Long memberId,
-                                                        @Valid
-                                                        @RequestPart(name = "postUpdateRequest") PostUpdateRequestDto dto,
-                                                        @RequestPart(name = "file") List<MultipartFile> mediaUrl, BindingResult result) throws IOException {
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long postId, @RequestParam Long memberId,
+            @Valid
+            @RequestPart(name = "postUpdateRequest") PostUpdateRequestDto dto,
+            @RequestPart(name = "file") List<MultipartFile> mediaUrl, BindingResult result) throws IOException {
 
         String jwt = token.replace("Bearer", "");
         Long userId = memberService.getMemberIdFromToken(jwt);
@@ -88,7 +112,7 @@ public class PostController {
     //게시물 상태 변경(공개,비공개,삭제됨)
     @PatchMapping("/{postId}")
     public ResponseEntity<String> changeState(//상태변경 메서드
-                                              @RequestHeader("Authorization") String token,@PathVariable Long postId,
+                                              @RequestHeader("Authorization") String token, @PathVariable Long postId,
                                               @RequestParam Long memberId,
                                               @RequestBody PostStateChangeRequestDto dto) {
 
@@ -121,16 +145,19 @@ public class PostController {
     public ResponseEntity<Page<PostPageResponseDto>> findAllPage(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam int pageSort, @RequestBody PostPageRequestDto dto
-    ) {
-        Page<PostPageResponseDto> result = postService.findAllPage(page, size, pageSort, dto);
+            @RequestParam int pageSort, @RequestBody PostPageRequestDto dto,
+            @RequestHeader("Authorization") String token
 
+    ) {
+        String jwt = token.replace("Bearer", "");
+        Long userId = memberService.getMemberIdFromToken(jwt);
+        Page<PostPageResponseDto> result = postService.findAllPage(page, size, pageSort, dto);
         return ResponseEntity.ok(result);
     }
 
     //게시물 좋아요
     @PostMapping("/{postId}/likes")
-    public ResponseEntity<String> postLike(@RequestHeader("Authorization") String token,  @PathVariable Long postId, @RequestParam Long memberId) {
+    public ResponseEntity<String> postLike(@RequestHeader("Authorization") String token, @PathVariable Long postId, @RequestParam Long memberId) {
         String jwt = token.replace("Bearer", "");
         Long userId = memberService.getMemberIdFromToken(jwt);
 
@@ -142,7 +169,7 @@ public class PostController {
 
     //게시물 좋아요 취소
     @DeleteMapping("/{postId}/cancel")
-    public ResponseEntity<String> postLikeCancel(@RequestHeader("Authorization") String token,@PathVariable Long postId, @RequestParam Long memberId) {
+    public ResponseEntity<String> postLikeCancel(@RequestHeader("Authorization") String token, @PathVariable Long postId, @RequestParam Long memberId) {
         String jwt = token.replace("Bearer", "");
         Long userId = memberService.getMemberIdFromToken(jwt);
 

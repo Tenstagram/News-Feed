@@ -7,9 +7,6 @@ import java.util.Optional;
 
 public interface LikeCommentRepository extends JpaRepository<LikeComment, Long> {
 
-    // JPA 에서 자체적으로 메서드 이름을 분석해서 자동으로 쿼리처리 해줌
-    // 만약 더 복잡한 조건이 필요하면 직접 쿼리문 입력 가능
-
     // [JPA 쿼리 네이밍 방법]
     // JPA 에서는 _는 개체 필드타입과 필드명을 구분하는 것
     // => Comment_commentId 이건 Comment.commentId 이런 의미로 해석할 수 있음
