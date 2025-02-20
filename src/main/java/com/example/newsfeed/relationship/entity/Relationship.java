@@ -25,6 +25,7 @@ public class Relationship extends BaseEntity {
     private Member receiver;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private RelationshipStatus status;
 
     public Relationship(Member sender, Member receiver) {
